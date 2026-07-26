@@ -9,13 +9,17 @@ import { supabase } from "@/lib/supabase";
 const CATEGORIES = [
   "All",
   "AI",
-  "Hackathons",
-  "Workshops",
-  "Conferences",
-  "Meetups",
-  "Startups",
+  "Hackathon",
+  "Workshop",
+  "Conference",
+  "Meetup",
+  "Startup",
   "Cybersecurity",
   "Web Development",
+  "Exhibition",
+  "Mobile Development",
+  "Cloud Computing",
+  "University Event",
 ];
 
 export default async function ExplorePage({
@@ -23,16 +27,30 @@ export default async function ExplorePage({
 }: {
   searchParams: Promise<{
     category?: string;
+    search?: string;
   }>;
 }) {
-  const { category } = await searchParams;
+  const { category, search } = await searchParams;
   let query = supabase
     .from("events")
     .select("*")
     .order("event_date", { ascending: true });
 
-  if (category && category.toLowerCase() !== "all") {
-    query = query.eq("category", category.toLowerCase());
+  if (category && category !== "All") {
+  query = query.ilike("category", category);
+}
+
+  if (search) {
+    query = query.or(
+      [
+        `title.ilike.%${search}%`,
+        `description.ilike.%${search}%`,
+        `organizer.ilike.%${search}%`,
+        `location.ilike.%${search}%`,
+        `category.ilike.%${search}%`,
+        `tags.cs.{${search}}`,
+      ].join(",")
+    );
   }
 
   const { data: events, error } = await query;
@@ -62,7 +80,20 @@ export default async function ExplorePage({
             </p>
 
             <div className="mt-6 flex flex-col gap-4 sm:flex-row sm:items-center">
-              <div className="relative flex-1">
+              <form
+                action="/events"
+                method="GET"
+                className="relative flex-1"
+              >
+                {/* Preserve selected category */}
+                {category && (
+                  <input
+                    type="hidden"
+                    name="category"
+                    value={category}
+                  />
+                )}
+
                 <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
                   <Search
                     className="h-4 w-4 text-gray-400"
@@ -72,10 +103,19 @@ export default async function ExplorePage({
 
                 <input
                   type="text"
+                  name="search"
+                  defaultValue={search}
                   placeholder="Search events..."
-                  className="block w-full rounded-xl border border-gray-200 py-2.5 pl-10 pr-3 text-sm placeholder:text-gray-400 focus:border-black focus:ring-1 focus:ring-black outline-none transition-colors"
+                  className="block w-full rounded-xl border border-gray-200 py-2.5 pl-10 pr-24 text-sm placeholder:text-gray-400 focus:border-black focus:ring-1 focus:ring-black outline-none transition-colors"
                 />
-              </div>
+
+                <button
+                  type="submit"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 rounded-lg bg-black px-4 py-2 text-sm font-medium text-white hover:bg-gray-800"
+                >
+                  Search
+                </button>
+              </form>
 
               <div className="flex flex-wrap gap-2">
                 {CATEGORIES.slice(0, 5).map((item) => (
@@ -87,8 +127,8 @@ export default async function ExplorePage({
                         : `/events?category=${encodeURIComponent(item)}`
                     }
                     className={`inline-flex items-center justify-center rounded-lg px-4 py-2 text-sm font-medium transition-colors ${(!category && item === "All") || category === item
-                        ? "bg-black text-white"
-                        : "border border-gray-200 bg-white text-gray-700 hover:bg-gray-50"
+                      ? "bg-black text-white"
+                      : "border border-gray-200 bg-white text-gray-700 hover:bg-gray-50"
                       }`}
                   >
                     {item}
@@ -114,11 +154,11 @@ export default async function ExplorePage({
                       key={item}
                       href={`/events?category=${encodeURIComponent(item)}`}
                       className={`block rounded-lg px-3 py-2 text-sm transition ${category === item
-                          ? "bg-black text-white"
-                          : "text-gray-700 hover:bg-gray-100"
+                        ? "bg-black text-white"
+                        : "text-gray-700 hover:bg-gray-100"
                         }`}
                     >
-                      {category}
+                      {item}
                     </Link>
                   ))}
                 </div>

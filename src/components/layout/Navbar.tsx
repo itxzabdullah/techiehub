@@ -88,7 +88,7 @@ export default function Navbar() {
           ) : (
             <div className="flex items-center gap-3">
               <Link
-                href="/admin/events/new"
+                href="/submit-event"
                 className="inline-flex h-10 items-center justify-center rounded-full bg-primary px-5 text-sm font-medium text-primary-foreground transition hover:opacity-90"
               >
                 Submit Event
@@ -145,7 +145,7 @@ export default function Navbar() {
             ) : (
               <>
                 <Link
-                  href="/admin/events/new"
+                  href="/submit-event"
                   onClick={() => setIsMobileMenuOpen(false)}
                   className="mt-3 flex h-10 w-full items-center justify-center rounded-full bg-primary text-sm font-medium text-primary-foreground transition hover:opacity-90"
                 >

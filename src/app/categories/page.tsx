@@ -4,16 +4,17 @@ import Link from "next/link";
 import { ChevronRight } from "lucide-react";
 
 const CATEGORIES = [
-  { name: "AI & Machine Learning", count: 12, slug: "ai" },
-  { name: "Hackathons", count: 5, slug: "hackathons" },
-  { name: "Workshops", count: 18, slug: "workshops" },
-  { name: "Conferences", count: 3, slug: "conferences" },
-  { name: "Meetups", count: 24, slug: "meetups" },
-  { name: "Startups & Pitch", count: 8, slug: "startups" },
+  { name: "AI", count: 12, slug: "ai" },
+  { name: "Hackathon", count: 5, slug: "hackathon" },
+  { name: "Workshop", count: 18, slug: "workshop" },
+  { name: "Conference", count: 3, slug: "conference" },
+  { name: "Meetup", count: 24, slug: "meetup" },
+  { name: "Startup", count: 8, slug: "startup" },
   { name: "Cybersecurity", count: 4, slug: "cybersecurity" },
   { name: "Web Development", count: 15, slug: "web-dev" },
   { name: "Mobile Development", count: 9, slug: "mobile-dev" },
   { name: "Cloud Computing", count: 6, slug: "cloud" },
+  { name: "Exhibition", count: 7, slug: "exhibition" },
   { name: "University Events", count: 21, slug: "university" },
 ];
 

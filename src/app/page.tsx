@@ -23,16 +23,17 @@ export default async function Home() {
 
   const categories = [
     "AI",
-    "Hackathons",
-    "Workshops",
-    "Conferences",
-    "Meetups",
-    "Startups",
+    "Hackathon",
+    "Workshop",
+    "Conference",
+    "Meetup",
+    "Startup",
     "Cybersecurity",
     "Web Development",
     "Mobile Development",
     "Cloud",
-    "University Events",
+    "Exhibition",
+    "University",
   ];
   return (
     <>

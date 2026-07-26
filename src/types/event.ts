@@ -10,4 +10,5 @@ export interface Event {
   is_free: boolean;
   registration_link: string | null;
   created_at: string;
+  tags: string[];
 }

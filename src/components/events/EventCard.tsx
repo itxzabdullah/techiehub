@@ -52,6 +52,19 @@ export default function EventCard({ event }: EventCardProps) {
           <p className="text-gray-600">
             {event.description}
           </p>
+          {/* Tags */}
+          {event.tags && event.tags.length > 0 && (
+            <div className="flex flex-wrap gap-2">
+              {event.tags.map((tag: string) => (
+                <span
+                  key={tag}
+                  className="rounded-full bg-gray-100 px-3 py-1 text-xs font-medium text-gray-700"
+                >
+                  #{tag}
+                </span>
+              ))}
+            </div>
+          )}
 
           {/* Details */}
           <div className="space-y-3 text-sm text-gray-700">
