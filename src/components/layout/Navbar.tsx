@@ -7,7 +7,7 @@ import { useState } from "react";
 const navLinks = [
   { name: "Home", href: "/" },
   { name: "Events", href: "/events" },
-  { name: "Communities", href: "/communities" },
+  { name: "AI Recommendations", href: "/recommend" },
   { name: "About", href: "/about" },
 ];
 
@@ -51,6 +51,14 @@ export default function Navbar() {
           >
             Submit Event
           </Link>
+
+          <Link
+            href="/recommend"
+            className="inline-flex h-10 items-center justify-center rounded-full bg-primary px-5 text-sm font-medium text-primary-foreground transition-colors hover:opacity-90"
+          >
+            AI Recommendations
+          </Link>
+          
         </div>
 
         {/* Mobile Toggle */}
@@ -89,6 +97,14 @@ export default function Navbar() {
               className="mt-3 flex h-10 w-full items-center justify-center rounded-full bg-primary text-sm font-medium text-primary-foreground transition-colors hover:opacity-90"
             >
               Submit Event
+            </Link>
+
+            <Link
+              href="/recommend"
+              onClick={() => setIsMobileMenuOpen(false)}
+              className="mt-3 flex h-10 w-full items-center justify-center rounded-full bg-primary text-sm font-medium text-primary-foreground transition-colors hover:opacity-90"
+            >
+              AI Recommendations
             </Link>
           </div>
         </div>

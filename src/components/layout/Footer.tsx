@@ -46,22 +46,6 @@ export default function Footer() {
                             </li>
                         </ul>
                     </div>
-
-                    <div>
-                        <h3 className="text-sm font-semibold text-gray-900 tracking-wider uppercase">Legal</h3>
-                        <ul className="mt-4 space-y-3">
-                            <li>
-                                <Link href="/privacy" className="text-sm text-gray-500 hover:text-black transition-colors">
-                                    Privacy Policy
-                                </Link>
-                            </li>
-                            <li>
-                                <Link href="/terms" className="text-sm text-gray-500 hover:text-black transition-colors">
-                                    Terms of Service
-                                </Link>
-                            </li>
-                        </ul>
-                    </div>
                 </div>
 
                 <div className="mt-12 border-t border-gray-100 pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
