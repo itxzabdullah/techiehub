@@ -10,7 +10,6 @@ const navLinks = [
   { name: "Home", href: "/" },
   { name: "Events", href: "/events" },
   { name: "AI Recommendations", href: "/recommend" },
-  { name: "About", href: "/about" },
 ];
 
 export default function Navbar() {

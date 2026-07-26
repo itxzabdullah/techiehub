@@ -14,14 +14,17 @@ export default function CategorySection({
           <h2 className="text-sm font-semibold uppercase tracking-wider text-gray-500">
             Browse by Category
           </h2>
+
           <div className="flex flex-wrap gap-2 sm:gap-3">
             {categories.map((category) => (
               <Link
                 key={category}
-                href={`/events?category=${encodeURIComponent(category)}`} // UI only for now
+                href={`/events?category=${encodeURIComponent(category)}`}
                 className="inline-flex items-center justify-center rounded-full border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:border-gray-300 hover:bg-gray-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-black"
               >
-                {category}
+                {category === "ai"
+                  ? "AI"
+                  : category.charAt(0).toUpperCase() + category.slice(1)}
               </Link>
             ))}
           </div>

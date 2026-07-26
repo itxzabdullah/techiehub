@@ -1,31 +1,92 @@
-import Link from "next/link";
-import { Calendar, MapPin } from "lucide-react";
+import { Calendar, MapPin, User, Tag, ExternalLink } from "lucide-react";
+import { Event } from "@/types/event";
 
 interface EventCardProps {
-  event: any;
+  event: Event;
 }
 
 export default function EventCard({ event }: EventCardProps) {
+  const formattedDate = new Date(event.event_date).toLocaleString();
+
+  const Wrapper = ({ children }: { children: React.ReactNode }) => {
+    if (event.registration_link) {
+      return (
+        <a
+          href={event.registration_link}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="block"
+        >
+          {children}
+        </a>
+      );
+    }
+
+    return <div>{children}</div>;
+  };
+
   return (
-    <Link href={`/events/${event.id}`} className="group relative flex flex-col justify-between overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-gray-200 transition-all hover:shadow-md">
-      <div className="flex-1 p-6">
-        <div className="flex items-center gap-2 text-sm text-gray-500">
-          <Calendar className="h-4 w-4" />
-          <span>{new Date(event.date || Date.now()).toLocaleDateString()}</span>
+    <Wrapper>
+      <div className="group overflow-hidden rounded-2xl border bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-lg">
+        {/* Event Image */}
+        {event.image_url && (
+          <img
+            src={event.image_url}
+            alt={event.title}
+            className="h-56 w-full object-cover"
+          />
+        )}
+
+        <div className="space-y-5 p-6">
+          {/* Category */}
+          <div className="inline-flex rounded-full bg-blue-100 px-3 py-1 text-sm font-medium text-blue-700">
+            {event.category}
+          </div>
+
+          {/* Title */}
+          <h2 className="text-2xl font-bold text-gray-900">
+            {event.title}
+          </h2>
+
+          {/* Description */}
+          <p className="text-gray-600">
+            {event.description}
+          </p>
+
+          {/* Details */}
+          <div className="space-y-3 text-sm text-gray-700">
+            <div className="flex items-center gap-2">
+              <Calendar className="h-4 w-4" />
+              <span>{formattedDate}</span>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <MapPin className="h-4 w-4" />
+              <span>{event.location}</span>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <User className="h-4 w-4" />
+              <span>{event.organizer}</span>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <Tag className="h-4 w-4" />
+              <span>{event.is_free ? "Free Event" : "Paid Event"}</span>
+            </div>
+          </div>
+
+          {/* Registration */}
+          {event.registration_link && (
+            <div className="pt-3 border-t">
+              <span className="inline-flex items-center gap-2 rounded-lg bg-black px-4 py-2 text-sm font-medium text-white transition group-hover:bg-gray-800">
+                Register Now
+                <ExternalLink className="h-4 w-4" />
+              </span>
+            </div>
+          )}
         </div>
-        <h3 className="mt-3 text-lg font-semibold text-gray-900 group-hover:text-black">
-          {event.title || "Untitled Event"}
-        </h3>
-        <p className="mt-2 line-clamp-2 text-sm text-gray-500">
-          {event.description || "No description available."}
-        </p>
       </div>
-      <div className="border-t border-gray-100 bg-gray-50 p-6">
-        <div className="flex items-center gap-2 text-sm font-medium text-gray-900">
-          <MapPin className="h-4 w-4 text-gray-400" />
-          {event.location || "Karachi, Pakistan"}
-        </div>
-      </div>
-    </Link>
+    </Wrapper>
   );
 }

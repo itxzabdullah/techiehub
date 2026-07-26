@@ -1,4 +1,5 @@
 import Navbar from "@/components/layout/Navbar";
+import Link from "next/link";
 import Footer from "@/components/layout/Footer";
 import EventCard from "@/components/events/EventCard";
 import EmptyState from "@/components/EmptyState";
@@ -17,11 +18,24 @@ const CATEGORIES = [
   "Web Development",
 ];
 
-export default async function ExplorePage() {
-  const { data: events, error } = await supabase
+export default async function ExplorePage({
+  searchParams,
+}: {
+  searchParams: Promise<{
+    category?: string;
+  }>;
+}) {
+  const { category } = await searchParams;
+  let query = supabase
     .from("events")
     .select("*")
     .order("event_date", { ascending: true });
+
+  if (category && category.toLowerCase() !== "all") {
+    query = query.eq("category", category.toLowerCase());
+  }
+
+  const { data: events, error } = await query;
 
   if (error) {
     return (
@@ -64,17 +78,21 @@ export default async function ExplorePage() {
               </div>
 
               <div className="flex flex-wrap gap-2">
-                {CATEGORIES.slice(0, 5).map((category, idx) => (
-                  <button
-                    key={category}
-                    className={`inline-flex items-center justify-center rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
-                      idx === 0
+                {CATEGORIES.slice(0, 5).map((item) => (
+                  <Link
+                    key={item}
+                    href={
+                      item === "All"
+                        ? "/events"
+                        : `/events?category=${encodeURIComponent(item)}`
+                    }
+                    className={`inline-flex items-center justify-center rounded-lg px-4 py-2 text-sm font-medium transition-colors ${(!category && item === "All") || category === item
                         ? "bg-black text-white"
                         : "border border-gray-200 bg-white text-gray-700 hover:bg-gray-50"
-                    }`}
+                      }`}
                   >
-                    {category}
-                  </button>
+                    {item}
+                  </Link>
                 ))}
               </div>
             </div>
@@ -91,20 +109,17 @@ export default async function ExplorePage() {
                 </h3>
 
                 <div className="mt-4 space-y-3">
-                  {CATEGORIES.slice(1).map((category) => (
-                    <label
-                      key={category}
-                      className="flex items-center gap-3"
+                  {CATEGORIES.slice(1).map((item) => (
+                    <Link
+                      key={item}
+                      href={`/events?category=${encodeURIComponent(item)}`}
+                      className={`block rounded-lg px-3 py-2 text-sm transition ${category === item
+                          ? "bg-black text-white"
+                          : "text-gray-700 hover:bg-gray-100"
+                        }`}
                     >
-                      <input
-                        type="checkbox"
-                        className="h-4 w-4 rounded border-gray-300 text-black focus:ring-black"
-                      />
-
-                      <span className="text-sm text-gray-600">
-                        {category}
-                      </span>
-                    </label>
+                      {category}
+                    </Link>
                   ))}
                 </div>
               </div>
