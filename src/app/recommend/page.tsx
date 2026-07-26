@@ -1,17 +1,20 @@
 "use client";
-import EventCard from "@/components/events/EventCard";
+
 import { useState } from "react";
+import EventCard from "@/components/events/EventCard";
+import type { Event } from "@/types/event";
+
+interface Recommendation {
+  event: Event;
+  reason: string;
+}
 
 export default function RecommendPage() {
   const [interests, setInterests] = useState("");
-  const [recommendations, setRecommendations] = useState<
-    {
-      event: any;
-      reason: string;
-    }[]
-  >([]);
+  const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [message, setMessage] = useState("");
 
   async function handleRecommend() {
     if (!interests.trim()) {
@@ -19,12 +22,12 @@ export default function RecommendPage() {
       return;
     }
 
+    setLoading(true);
+    setRecommendations([]);
     setError("");
+    setMessage("");
 
     try {
-      setLoading(true);
-      setRecommendations([]);
-
       const response = await fetch("/api/recommend", {
         method: "POST",
         headers: {
@@ -42,20 +45,20 @@ export default function RecommendPage() {
       }
 
       setRecommendations(data.recommendations || []);
-      setError("");
-    } catch (error) {
+      setMessage(data.message || "");
+    } catch (err) {
+      console.error(err);
       setRecommendations([]);
       setError("Failed to generate recommendations. Please try again.");
-      console.error(error);
     } finally {
       setLoading(false);
     }
   }
 
   return (
-    <main className="mx-auto max-w-3xl px-6 py-16">
+    <main className="mx-auto max-w-5xl px-6 py-16">
       <h1 className="text-4xl font-bold">
-        AI Event Recommender
+        🤖 AI Event Recommender
       </h1>
 
       <p className="mt-3 text-gray-600">
@@ -67,36 +70,38 @@ export default function RecommendPage() {
         value={interests}
         onChange={(e) => {
           setInterests(e.target.value);
+
           if (error) setError("");
         }}
-        className="mt-8 h-40 w-full rounded-xl border p-4 outline-none focus:ring-2 focus:ring-black"
+        className="mt-8 h-40 w-full rounded-xl border p-4 outline-none transition focus:ring-2 focus:ring-black"
         placeholder="Example: I like AI, cybersecurity, startups and hackathons."
       />
 
       <button
         onClick={handleRecommend}
         disabled={loading}
-        className="mt-6 rounded-xl bg-black px-6 py-3 text-white transition hover:bg-gray-800 disabled:cursor-not-allowed disabled:opacity-60"
+        className="mt-6 rounded-xl bg-black px-6 py-3 font-medium text-white transition hover:bg-gray-800 disabled:cursor-not-allowed disabled:opacity-60"
       >
-
         {loading ? "Thinking..." : "Recommend Events"}
       </button>
 
       {error && (
         <div className="mt-6 rounded-xl border border-red-200 bg-red-50 p-4">
-          <div className="flex items-start gap-3">
-            <span className="text-xl">⚠️</span>
+          <h3 className="font-semibold text-red-700">
+            Something went wrong
+          </h3>
 
-            <div>
-              <h3 className="font-semibold text-red-700">
-                Something went wrong
-              </h3>
+          <p className="mt-1 text-sm text-red-600">
+            {error}
+          </p>
+        </div>
+      )}
 
-              <p className="text-sm text-red-600">
-                {error}
-              </p>
-            </div>
-          </div>
+      {message && (
+        <div className="mt-6 rounded-xl border border-blue-200 bg-blue-50 p-4">
+          <p className="font-medium text-blue-700">
+            ℹ️ {message}
+          </p>
         </div>
       )}
 
@@ -104,51 +109,73 @@ export default function RecommendPage() {
         <div className="mt-6 rounded-xl border border-green-200 bg-green-50 p-4">
           <p className="font-medium text-green-700">
             ✅ Found {recommendations.length} AI recommendation
-            {recommendations.length > 1 ? "s" : ""} for you.
+            {recommendations.length > 1 ? "s" : ""}.
           </p>
         </div>
       )}
 
-      <div className="mt-10 space-y-5">
+      <section className="mt-12">
         <h2 className="text-2xl font-bold">
-          🤖 AI Recommendations
+          AI Recommendations
         </h2>
 
         {loading && (
-          <p className="text-gray-500">
-            Analyzing your interests...
-          </p>
+          <div className="mt-6 animate-pulse rounded-2xl border bg-white p-6 shadow-sm">
+            <div className="h-5 w-48 rounded bg-gray-200" />
+
+            <div className="mt-6 h-56 rounded-xl bg-gray-100" />
+
+            <div className="mt-6 h-4 w-2/3 rounded bg-gray-200" />
+          </div>
         )}
 
-        {!loading && recommendations.length === 0 && (
-          <p className="text-gray-500">
-            Your recommendations will appear here.
-          </p>
-        )}
-
-        {recommendations.map((item) => (
-          <div
-            key={item.event.id}
-            className="space-y-4 rounded-2xl border bg-white p-6 shadow-sm"
-          >
-            <div className="inline-flex rounded-full bg-green-100 px-3 py-1 text-sm font-medium text-green-700">
-              ⭐ AI Pick
-            </div>
-
-            <EventCard event={item.event} />
-
-            <div className="rounded-xl border bg-gray-50 p-4">
-              <h3 className="font-semibold">
-                Why this matches you
+        {!loading &&
+          recommendations.length === 0 &&
+          !error &&
+          !message && (
+            <div className="mt-6 rounded-xl border border-dashed p-10 text-center">
+              <h3 className="text-lg font-semibold">
+                🤖 No recommendations yet
               </h3>
 
-              <p className="mt-2 text-gray-600">
-                {item.reason}
+              <p className="mt-2 text-gray-500">
+                Enter your interests and TechieHub AI will recommend the best
+                events for you.
               </p>
             </div>
-          </div>
-        ))}
-      </div>
+          )}
+
+        <div className="mt-8 space-y-8">
+          {recommendations.map((item, index) => (
+            <div
+              key={item.event.id}
+              className="rounded-2xl border bg-white p-6 shadow-sm"
+            >
+              <div className="mb-5 flex items-center gap-3">
+                <span className="rounded-full bg-black px-3 py-1 text-sm font-medium text-white">
+                  #{index + 1}
+                </span>
+
+                <span className="rounded-full bg-green-100 px-3 py-1 text-sm font-medium text-green-700">
+                  🤖 AI Recommended
+                </span>
+              </div>
+
+              <EventCard event={item.event} />
+
+              <div className="mt-5 rounded-xl border bg-gray-50 p-4">
+                <h3 className="font-semibold">
+                  Why this matches you
+                </h3>
+
+                <p className="mt-2 text-gray-600">
+                  {item.reason}
+                </p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
     </main>
   );
 }

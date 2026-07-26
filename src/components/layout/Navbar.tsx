@@ -2,7 +2,9 @@
 
 import Link from "next/link";
 import { Menu, X } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { supabase } from "@/lib/supabase";
 
 const navLinks = [
   { name: "Home", href: "/" },
@@ -12,7 +14,39 @@ const navLinks = [
 ];
 
 export default function Navbar() {
+  const router = useRouter();
+
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [loggedIn, setLoggedIn] = useState(false);
+
+  useEffect(() => {
+    async function checkSession() {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+
+      setLoggedIn(!!session);
+    }
+
+    checkSession();
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_, session) => {
+      setLoggedIn(!!session);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  async function handleLogout() {
+    await supabase.auth.signOut();
+
+    setLoggedIn(false);
+
+    router.push("/");
+    router.refresh();
+  }
 
   return (
     <nav className="sticky top-0 z-50 w-full border-b border-border bg-background/80 backdrop-blur-md">
@@ -22,7 +56,7 @@ export default function Navbar() {
           href="/"
           className="flex items-center gap-3 transition-opacity hover:opacity-90"
         >
-          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary text-primary-foreground font-bold">
+          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary font-bold text-primary-foreground">
             TH
           </div>
 
@@ -45,20 +79,30 @@ export default function Navbar() {
             ))}
           </div>
 
-          <Link
-            href="/submit-event"
-            className="inline-flex h-10 items-center justify-center rounded-full bg-primary px-5 text-sm font-medium text-primary-foreground transition-colors hover:opacity-90"
-          >
-            Submit Event
-          </Link>
+          {!loggedIn ? (
+            <Link
+              href="/login"
+              className="inline-flex h-10 items-center justify-center rounded-full bg-primary px-5 text-sm font-medium text-primary-foreground transition hover:opacity-90"
+            >
+              Login
+            </Link>
+          ) : (
+            <div className="flex items-center gap-3">
+              <Link
+                href="/admin/events/new"
+                className="inline-flex h-10 items-center justify-center rounded-full bg-primary px-5 text-sm font-medium text-primary-foreground transition hover:opacity-90"
+              >
+                Submit Event
+              </Link>
 
-          <Link
-            href="/recommend"
-            className="inline-flex h-10 items-center justify-center rounded-full bg-primary px-5 text-sm font-medium text-primary-foreground transition-colors hover:opacity-90"
-          >
-            AI Recommendations
-          </Link>
-          
+              <button
+                onClick={handleLogout}
+                className="inline-flex h-10 items-center justify-center rounded-full border border-red-500 px-5 text-sm font-medium text-red-600 transition hover:bg-red-50"
+              >
+                Logout
+              </button>
+            </div>
+          )}
         </div>
 
         {/* Mobile Toggle */}
@@ -91,21 +135,35 @@ export default function Navbar() {
               </Link>
             ))}
 
-            <Link
-              href="/submit-event"
-              onClick={() => setIsMobileMenuOpen(false)}
-              className="mt-3 flex h-10 w-full items-center justify-center rounded-full bg-primary text-sm font-medium text-primary-foreground transition-colors hover:opacity-90"
-            >
-              Submit Event
-            </Link>
+            {!loggedIn ? (
+              <Link
+                href="/login"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="mt-3 flex h-10 w-full items-center justify-center rounded-full bg-primary text-sm font-medium text-primary-foreground transition hover:opacity-90"
+              >
+                Login
+              </Link>
+            ) : (
+              <>
+                <Link
+                  href="/admin/events/new"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="mt-3 flex h-10 w-full items-center justify-center rounded-full bg-primary text-sm font-medium text-primary-foreground transition hover:opacity-90"
+                >
+                  Submit Event
+                </Link>
 
-            <Link
-              href="/recommend"
-              onClick={() => setIsMobileMenuOpen(false)}
-              className="mt-3 flex h-10 w-full items-center justify-center rounded-full bg-primary text-sm font-medium text-primary-foreground transition-colors hover:opacity-90"
-            >
-              AI Recommendations
-            </Link>
+                <button
+                  onClick={() => {
+                    setIsMobileMenuOpen(false);
+                    handleLogout();
+                  }}
+                  className="mt-3 flex h-10 w-full items-center justify-center rounded-full border border-red-500 text-sm font-medium text-red-600 transition hover:bg-red-50"
+                >
+                  Logout
+                </button>
+              </>
+            )}
           </div>
         </div>
       )}
