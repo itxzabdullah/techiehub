@@ -6,7 +6,11 @@ interface EventCardProps {
 }
 
 export default function EventCard({ event }: EventCardProps) {
-  const formattedDate = new Date(event.event_date).toLocaleString();
+  const formattedDate = new Date(event.event_date).toLocaleString("en-PK", {
+  dateStyle: "medium",
+  timeStyle: "short",
+  timeZone: "Asia/Karachi",
+});
 
   const Wrapper = ({ children }: { children: React.ReactNode }) => {
     if (event.registration_link) {

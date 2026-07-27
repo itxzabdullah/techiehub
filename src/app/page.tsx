@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 import EventCard from "@/components/events/EventCard";
 import HeroSection from "@/components/home/HeroSection";
 import CategorySection from "@/components/home/CategorySection";
