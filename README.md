@@ -209,24 +209,24 @@ The project uses **Supabase PostgreSQL** as its backend database.
 
 ## Home Page
 
-![Home](screenshots/home.png)
+![Home](screenshots/home.PNG)
 
 ## Explore Events
 
-![Events](screenshots/events.png)
+![Events](screenshots/events.PNG)
 
 ## Submit Event
 
-![Submit](screenshots/submit-event.png)
+![Submit](screenshots/submit-event.PNG)
 
 ## AI Recommendation
 
-![User Interests](screenshots/recommendation1.png)
-![Recommendations](screenshots/recommendation2.png)
+![User Interests](screenshots/recommendation1.PNG)
+![Recommendations](screenshots/recommendation2.PNG)
 
 ## Admin Dashboard
 
-![Admin](screenshots/admin.png)
+![Admin](screenshots/admin.PNG)
 
 ---
 
