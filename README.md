@@ -221,7 +221,8 @@ The project uses **Supabase PostgreSQL** as its backend database.
 
 ## AI Recommendation
 
-![AI](screenshots/recommendation.png)
+![User Interests](screenshots/recommendation1.png)
+![Recommendations](screenshots/recommendation2.png)
 
 ## Admin Dashboard
 
