@@ -38,23 +38,18 @@ export default async function Home() {
   return (
     <>
       <Navbar />
-
       <HeroSection totalEvents={totalEvents} />
-
       <CategorySection categories={categories} />
-
       <main className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
         <section>
           <div className="mb-10">
             <h2 className="text-3xl font-bold tracking-tight">
               Upcoming Events
             </h2>
-
             <p className="mt-2 text-muted-foreground">
               Discover the latest technology events happening across Karachi.
             </p>
           </div>
-
           {events && events.length > 0 ? (
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
               {events.map((event) => (
