@@ -8,7 +8,7 @@ interface HeroSectionProps {
 
 export default function HeroSection({ totalEvents }: HeroSectionProps) {
   return (
-    <section className="relative overflow-hidden bg-white px-4 pt-28 pb-36 sm:px-6 lg:px-8">
+    <section className="relative overflow-hidden bg-white px-4 pt-28 pb-16 sm:px-6 lg:px-8">
       {/* Background */}
       <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top,_#f3f4f6,_white_65%)]" />
 
@@ -71,9 +71,9 @@ export default function HeroSection({ totalEvents }: HeroSectionProps) {
         </div>
 
         {/* Stats */}
-        <div className="mt-16 grid grid-cols-3 gap-8 border-t border-gray-200 pt-10">
+        <div className="mt-12 grid grid-cols-3 gap-8 border-t border-gray-200 pt-8">
           <div>
-            <p className="text-3xl font-bold text-gray-900">{totalEvents}</p>
+            <p className="text-3xl font-bold text-gray-900">{totalEvents}+</p>
             <p className="mt-1 text-sm text-gray-500">Tech Events</p>
           </div>
 

@@ -2,19 +2,17 @@
 
 TechieHub is a modern web application for discovering and sharing technology events in Karachi. It enables users to browse upcoming hackathons, workshops, conferences, AI events, meetups, startup events, and more. Organizers can securely submit new events through an authenticated admin interface, while users can search and filter events based on categories and keywords.
 
----
-
 ## 🌐 Live Demo
 
 https://techiehub-ten.vercel.app
+
+---
 
 ## Problem it solved
 
 The technology community in Karachi is fragmented, with over 250 technology companies, numerous educational institutes, and presence of global groups like Google, Figma, and Microsoft. The technology communities often list their events on LinkedIn pages and WhatsApp communities, which makes the whole user experience pretty much fragmented. And existing events platforms such as Eventbrite and Luma often lack the listing of local technology events happening in Karachi, which creates a gap in the market.The fragmentation creates a condition where staying informed requires monitoring 8-12 different handles, social media pages, communities, WhatsApp groups. This requires an immense amount of mental load and pressure often overwhelming students who are also carrying a heavy study schedule.
 
 The motivation behind this project is my personal experience while looking for different technology events happening in Karachi. The purpose of the project is to maximize the student involvement in different communities so that they would never miss an opportunity to connect, network, and grow.
-
----
 
 ## Target Audience
 
@@ -39,8 +37,6 @@ TechieHub is designed for:
 - Event cards with detailed information
 - External registration links
 
----
-
 ## Search
 
 Users can search events by:
@@ -51,8 +47,6 @@ Users can search events by:
 - Organizer
 - Location
 - Tags
-
----
 
 ## Category Filtering
 
@@ -65,8 +59,6 @@ Filter events by categories including:
 - Meetups
 - Startup
 - Exhibition
-
----
 
 ## Event Details
 
@@ -83,8 +75,6 @@ Each event displays:
 - Event Image
 - Free/Paid Status
 
----
-
 ## Admin Authentication
 
 Secure authentication using Supabase Auth.
@@ -95,8 +85,6 @@ Features include:
 - Logout
 - Protected routes
 - Session management
-
----
 
 ## Event Submission
 
@@ -113,8 +101,6 @@ Authenticated users can submit:
 - Registration Link
 - Image URL
 - Free/Paid status
-
----
 
 ## Dynamic Navigation
 
@@ -153,8 +139,6 @@ The recommendation considers:
 - User interests
 
 This helps users quickly discover events aligned with their goals.
-
----
 
 # 🧠 AI Prompt
 
@@ -215,8 +199,6 @@ Where:
 - Git
 - GitHub
 
----
-
 # 🗄 Database
 
 The project uses **Supabase PostgreSQL** as its backend database.
@@ -229,25 +211,17 @@ The project uses **Supabase PostgreSQL** as its backend database.
 
 ![Home](screenshots/home.png)
 
----
-
 ## Explore Events
 
 ![Events](screenshots/events.png)
-
----
 
 ## Submit Event
 
 ![Submit](screenshots/submit-event.png)
 
----
-
 ## AI Recommendation
 
 ![AI](screenshots/recommendation.png)
-
----
 
 ## Admin Dashboard
 
@@ -259,8 +233,6 @@ The project uses **Supabase PostgreSQL** as its backend database.
 
 - Node.js 18 or newer
 - npm
-
----
 
 # 💻 Installation
 
@@ -294,8 +266,6 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=YOUR_SUPABASE_ANON_KEY
 GEMINI_API_KEY=YOUR_GEMINI_API_KEY
 ```
 
----
-
 Run the development server
 
 ```bash
@@ -307,7 +277,6 @@ Open:
 ```
 http://localhost:3000
 ```
-
 ---
 
 # 🚀 Deployment
@@ -339,5 +308,3 @@ Supabase Authentication configuration:
 - Multi-city support
 - Advanced AI ranking
 - Personalized recommendations based on user history
-
----

@@ -40,9 +40,9 @@ export default async function Home() {
       <Navbar />
       <HeroSection totalEvents={totalEvents} />
       <CategorySection categories={categories} />
-      <main className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
+      <main className="mx-auto max-w-7xl px-4 pt-6 pb-16 sm:px-6 lg:px-8">
         <section>
-          <div className="mb-10">
+          <div className="mb-6">
             <h2 className="text-3xl font-bold tracking-tight">
               Upcoming Events
             </h2>
