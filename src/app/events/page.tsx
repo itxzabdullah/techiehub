@@ -32,34 +32,58 @@ export default async function ExplorePage({
   }>;
 }) {
   const { category, search } = await searchParams;
-  let query = supabase
+  const now = new Date().toISOString();
+
+  let upcomingQuery = supabase
     .from("events")
     .select("*")
+    .gte("event_date", now)
     .order("event_date", { ascending: true });
 
-  if (category && category !== "All") {
-  query = query.ilike("category", category);
-}
+  let pastQuery = supabase
+    .from("events")
+    .select("*")
+    .lt("event_date", now)
+    .order("event_date", { ascending: false });
 
-  if (search) {
-    query = query.or(
-      [
-        `title.ilike.%${search}%`,
-        `description.ilike.%${search}%`,
-        `organizer.ilike.%${search}%`,
-        `location.ilike.%${search}%`,
-        `category.ilike.%${search}%`,
-        `tags.cs.{${search}}`,
-      ].join(",")
-    );
+  if (category && category !== "All") {
+    upcomingQuery = upcomingQuery.ilike("category", category);
+    pastQuery = pastQuery.ilike("category", category);
   }
 
-  const { data: events, error } = await query;
+  if (search) {
+    const filters = [
+      `title.ilike.%${search}%`,
+      `description.ilike.%${search}%`,
+      `organizer.ilike.%${search}%`,
+      `location.ilike.%${search}%`,
+      `category.ilike.%${search}%`,
+      `tags.cs.{${search}}`,
+    ].join(",");
 
-  if (error) {
+    upcomingQuery = upcomingQuery.or(filters);
+    pastQuery = pastQuery.or(filters);
+  }
+
+  const [
+    { data: upcomingEvents, error: upcomingError },
+    { data: pastEvents, error: pastError },
+  ] = await Promise.all([
+    upcomingQuery,
+    pastQuery,
+  ]);
+
+  const searchResults = [
+    ...(upcomingEvents ?? []),
+    ...(pastEvents ?? []),
+  ];
+
+  if (upcomingError || pastError) {
     return (
       <div className="flex min-h-screen items-center justify-center">
-        <p className="text-red-500">Error loading events: {error.message}</p>
+        <p className="text-red-500">
+          Error loading events.
+        </p>
       </div>
     );
   }
@@ -79,44 +103,54 @@ export default async function ExplorePage({
               Find the perfect tech event in Karachi to attend, learn, and
               network.
             </p>
-
-            <div className="mt-6 flex flex-col gap-4 sm:flex-row sm:items-center">
-              <form
-                action="/events"
-                method="GET"
-                className="relative flex-1"
-              >
-                {/* Preserve selected category */}
-                {category && (
-                  <input
-                    type="hidden"
-                    name="category"
-                    value={category}
-                  />
-                )}
-
-                <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                  <Search
-                    className="h-4 w-4 text-gray-400"
-                    aria-hidden="true"
-                  />
-                </div>
-
-                <input
-                  type="text"
-                  name="search"
-                  defaultValue={search}
-                  placeholder="Search events..."
-                  className="block w-full rounded-xl border border-gray-200 py-2.5 pl-10 pr-24 text-sm placeholder:text-gray-400 focus:border-black focus:ring-1 focus:ring-black outline-none transition-colors"
-                />
-
-                <button
-                  type="submit"
-                  className="absolute right-2 top-1/2 -translate-y-1/2 rounded-lg bg-black px-4 py-2 text-sm font-medium text-white hover:bg-gray-800"
+            <div className="mt-6 flex flex-col gap-4">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+                <form
+                  action="/events"
+                  method="GET"
+                  className="relative flex-1"
                 >
-                  Search
-                </button>
-              </form>
+                  {/* Preserve selected category */}
+                  {category && (
+                    <input
+                      type="hidden"
+                      name="category"
+                      value={category}
+                    />
+                  )}
+
+                  <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                    <Search
+                      className="h-4 w-4 text-gray-400"
+                      aria-hidden="true"
+                    />
+                  </div>
+
+                  <input
+                    type="text"
+                    name="search"
+                    defaultValue={search}
+                    placeholder="Search events..."
+                    className="block w-full rounded-xl border border-gray-200 py-2.5 pl-10 pr-24 text-sm placeholder:text-gray-400 focus:border-black focus:ring-1 focus:ring-black outline-none transition-colors"
+                  />
+
+                  <button
+                    type="submit"
+                    className="absolute right-2 top-1/2 -translate-y-1/2 rounded-lg bg-black px-4 py-2 text-sm font-medium text-white hover:bg-gray-800"
+                  >
+                    Search
+                  </button>
+                </form>
+
+                {(search || (category && category !== "All")) && (
+                  <Link
+                    href="/events"
+                    className="inline-flex items-center justify-center rounded-lg border border-gray-200 px-4 py-2.5 text-sm font-medium text-gray-700 transition hover:bg-gray-100"
+                  >
+                    Reset Filters
+                  </Link>
+                )}
+              </div>
 
               <div className="flex flex-wrap gap-2">
                 {CATEGORIES.slice(0, 5).map((item) => (
@@ -124,12 +158,15 @@ export default async function ExplorePage({
                     key={item}
                     href={
                       item === "All"
-                        ? "/events"
-                        : `/events?category=${encodeURIComponent(item)}`
+                        ? search
+                          ? `/events?search=${encodeURIComponent(search)}`
+                          : "/events"
+                        : `/events?category=${encodeURIComponent(item)}${search ? `&search=${encodeURIComponent(search)}` : ""
+                        }`
                     }
                     className={`inline-flex items-center justify-center rounded-lg px-4 py-2 text-sm font-medium transition-colors ${(!category && item === "All") || category === item
-                      ? "bg-black text-white"
-                      : "border border-gray-200 bg-white text-gray-700 hover:bg-gray-50"
+                        ? "bg-black text-white"
+                        : "border border-gray-200 bg-white text-gray-700 hover:bg-gray-50"
                       }`}
                   >
                     {item}
@@ -153,7 +190,9 @@ export default async function ExplorePage({
                   {CATEGORIES.slice(1).map((item) => (
                     <Link
                       key={item}
-                      href={`/events?category=${encodeURIComponent(item)}`}
+                      href={`/events?category=${encodeURIComponent(item)}${
+                        search ? `&search=${encodeURIComponent(search)}` : ""
+                        }`}
                       className={`block rounded-lg px-3 py-2 text-sm transition ${category === item
                         ? "bg-black text-white"
                         : "text-gray-700 hover:bg-gray-100"
@@ -167,27 +206,87 @@ export default async function ExplorePage({
             </aside>
 
             {/* Events */}
-            <section className="flex-1">
-              {!events || events.length === 0 ? (
-                <EmptyState
-                  title="No events found"
-                  description="Try adjusting your search or filters."
-                />
-              ) : (
-                <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-3">
-                  {events.map((event) => (
-                    <EventCard
-                      key={event.id}
-                      event={event}
+            <section className="flex-1 space-y-12">
+              {search ? (
+                <div>
+                  <h2 className="mb-2 text-2xl font-bold">
+                    Search Results
+                  </h2>
+
+                  <p className="mb-6 text-sm text-gray-500">
+                    Showing {searchResults.length} result
+                    {searchResults.length !== 1 ? "s" : ""} for "{search}"
+                  </p>
+
+                  {searchResults.length === 0 ? (
+                    <EmptyState
+                      title="No events found"
+                      description={`No events matched "${search}".`}
                     />
-                  ))}
+                  ) : (
+                    <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-3">
+                      {searchResults.map((event) => (
+                        <EventCard
+                          key={event.id}
+                          event={event}
+                        />
+                      ))}
+                    </div>
+                  )}
                 </div>
+              ) : (
+                <>
+                  {/* Upcoming Events */}
+                  <div>
+                    <h2 className="mb-6 text-2xl font-bold">
+                      Upcoming Events
+                    </h2>
+
+                    {!upcomingEvents || upcomingEvents.length === 0 ? (
+                      <EmptyState
+                        title="No upcoming events"
+                        description="Check back soon."
+                      />
+                    ) : (
+                      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-3">
+                        {upcomingEvents.map((event) => (
+                          <EventCard
+                            key={event.id}
+                            event={event}
+                          />
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Past Events */}
+                  <div>
+                    <h2 className="mb-6 text-2xl font-bold">
+                      Past Events
+                    </h2>
+
+                    {!pastEvents || pastEvents.length === 0 ? (
+                      <EmptyState
+                        title="No past events"
+                        description="Past events will appear here."
+                      />
+                    ) : (
+                      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-3">
+                        {pastEvents.map((event) => (
+                          <EventCard
+                            key={event.id}
+                            event={event}
+                          />
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </>
               )}
             </section>
           </div>
         </div>
       </main>
-
       <Footer />
     </div>
   );

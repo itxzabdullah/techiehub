@@ -6,11 +6,25 @@ interface EventCardProps {
 }
 
 export default function EventCard({ event }: EventCardProps) {
-  const formattedDate = new Date(event.event_date).toLocaleString("en-PK", {
-  dateStyle: "medium",
-  timeStyle: "short",
-  timeZone: "Asia/Karachi",
-});
+  const date = new Date(event.event_date);
+
+  const formattedDate =
+    date.toLocaleDateString("en-GB", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+      timeZone: "Asia/Karachi",
+    }) +
+    " • " +
+    date
+      .toLocaleTimeString("en-US", {
+        hour: "numeric",
+        minute: "2-digit",
+        hour12: true,
+        timeZone: "Asia/Karachi",
+      })
+      .toUpperCase() +
+    " (PKT)";
 
   const Wrapper = ({ children }: { children: React.ReactNode }) => {
     if (event.registration_link) {
@@ -97,7 +111,7 @@ export default function EventCard({ event }: EventCardProps) {
           {event.registration_link && (
             <div className="pt-3 border-t">
               <span className="inline-flex items-center gap-2 rounded-lg bg-black px-4 py-2 text-sm font-medium text-white transition group-hover:bg-gray-800">
-                Register Now
+                Learn More
                 <ExternalLink className="h-4 w-4" />
               </span>
             </div>

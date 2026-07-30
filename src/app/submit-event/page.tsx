@@ -1,5 +1,5 @@
 "use client";
-
+import { fromZonedTime } from "date-fns-tz";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
@@ -75,7 +75,12 @@ export default function SubmitEventPage() {
     setLoading(true);
 
     try {
-      const eventDateTime = `${eventDate}T${eventTime}:00`;
+      const localDate = `${eventDate} ${eventTime}:00`;
+
+      const eventDateTime = fromZonedTime(
+        localDate,
+        "Asia/Karachi"
+      ).toISOString();
 
       const { error } = await supabase
         .from("events")

@@ -73,7 +73,7 @@ export default function HeroSection({ totalEvents }: HeroSectionProps) {
         {/* Stats */}
         <div className="mt-12 grid grid-cols-3 gap-8 border-t border-gray-200 pt-8">
           <div>
-            <p className="text-3xl font-bold text-gray-900">{totalEvents}+</p>
+            <p className="text-3xl font-bold text-gray-900">{totalEvents}</p>
             <p className="mt-1 text-sm text-gray-500">Tech Events</p>
           </div>
 
