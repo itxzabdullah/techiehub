@@ -78,30 +78,37 @@ export default function Navbar() {
             ))}
           </div>
 
-          {!loggedIn ? (
+
+
+
+          <div className="flex items-center gap-3">
             <Link
-              href="/login"
+              href="/submit-event"
               className="inline-flex h-10 items-center justify-center rounded-full bg-primary px-5 text-sm font-medium text-primary-foreground transition hover:opacity-90"
             >
-              Login
+              Submit Event
             </Link>
-          ) : (
-            <div className="flex items-center gap-3">
-              <Link
-                href="/submit-event"
-                className="inline-flex h-10 items-center justify-center rounded-full bg-primary px-5 text-sm font-medium text-primary-foreground transition hover:opacity-90"
-              >
-                Submit Event
-              </Link>
 
+            {!loggedIn ? (
+              <Link
+                href="/login"
+                className="inline-flex h-10 items-center justify-center rounded-full border border-border px-5 text-sm font-medium transition hover:bg-accent"
+              >
+                Login
+              </Link>
+            ) : (
               <button
                 onClick={handleLogout}
                 className="inline-flex h-10 items-center justify-center rounded-full border border-red-500 px-5 text-sm font-medium text-red-600 transition hover:bg-red-50"
               >
                 Logout
               </button>
-            </div>
-          )}
+            )}
+          </div>
+
+
+
+
         </div>
 
         {/* Mobile Toggle */}
@@ -133,35 +140,32 @@ export default function Navbar() {
                 {link.name}
               </Link>
             ))}
+            <Link
+              href="/submit-event"
+              onClick={() => setIsMobileMenuOpen(false)}
+              className="mt-3 flex h-10 w-full items-center justify-center rounded-full bg-primary text-sm font-medium text-primary-foreground transition hover:opacity-90"
+            >
+              Submit Event
+            </Link>
 
             {!loggedIn ? (
               <Link
                 href="/login"
                 onClick={() => setIsMobileMenuOpen(false)}
-                className="mt-3 flex h-10 w-full items-center justify-center rounded-full bg-primary text-sm font-medium text-primary-foreground transition hover:opacity-90"
+                className="mt-3 flex h-10 w-full items-center justify-center rounded-full border text-sm font-medium transition hover:bg-accent"
               >
                 Login
               </Link>
             ) : (
-              <>
-                <Link
-                  href="/submit-event"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  className="mt-3 flex h-10 w-full items-center justify-center rounded-full bg-primary text-sm font-medium text-primary-foreground transition hover:opacity-90"
-                >
-                  Submit Event
-                </Link>
-
-                <button
-                  onClick={() => {
-                    setIsMobileMenuOpen(false);
-                    handleLogout();
-                  }}
-                  className="mt-3 flex h-10 w-full items-center justify-center rounded-full border border-red-500 text-sm font-medium text-red-600 transition hover:bg-red-50"
-                >
-                  Logout
-                </button>
-              </>
+              <button
+                onClick={() => {
+                  setIsMobileMenuOpen(false);
+                  handleLogout();
+                }}
+                className="mt-3 flex h-10 w-full items-center justify-center rounded-full border border-red-500 text-sm font-medium text-red-600 transition hover:bg-red-50"
+              >
+                Logout
+              </button>
             )}
           </div>
         </div>

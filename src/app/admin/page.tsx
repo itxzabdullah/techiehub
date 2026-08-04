@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import { supabase } from "@/lib/supabase";
@@ -15,17 +16,36 @@ export default function AdminPage() {
 
   useEffect(() => {
     async function checkUser() {
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
+      try {
+        const {
+          data: { session },
+        } = await supabase.auth.getSession();
 
-      if (!session) {
-        router.replace("/login");
-        return;
+        // User is not logged in
+        if (!session) {
+          router.replace("/login");
+          return;
+        }
+
+        // Verify admin role
+        const { data: profile, error } = await supabase
+          .from("profiles")
+          .select("role")
+          .eq("id", session.user.id)
+          .single();
+
+        if (error || profile?.role !== "admin") {
+          router.replace("/");
+          return;
+        }
+
+        setEmail(session.user.email ?? "");
+      } catch (err) {
+        console.error("Failed to verify admin:", err);
+        router.replace("/");
+      } finally {
+        setLoading(false);
       }
-
-      setEmail(session.user.email ?? "");
-      setLoading(false);
     }
 
     checkUser();
@@ -64,7 +84,7 @@ export default function AdminPage() {
         </h1>
 
         <p className="mt-2 text-gray-600">
-          Manage TechieHub events from one place.
+          Review community submissions and publish events to TechieHub.
         </p>
 
         <div className="mt-8 rounded-2xl border bg-white p-6 shadow-sm">
@@ -83,10 +103,10 @@ export default function AdminPage() {
         <div className="mt-8 grid gap-6 md:grid-cols-2">
           <Link
             href="/submit-event"
-            className="rounded-2xl border bg-white p-6 shadow-sm transition hover:shadow-md"
+            className="rounded-2xl border bg-white p-6 shadow-sm transition-all duration-200 hover:-translate-y-1 hover:border-gray-300 hover:shadow-lg"
           >
             <h2 className="text-xl font-semibold">
-              ➕ Submit New Event
+              ➕ Publish Event
             </h2>
 
             <p className="mt-2 text-gray-600">
@@ -95,16 +115,19 @@ export default function AdminPage() {
             </p>
           </Link>
 
-          <div className="rounded-2xl border bg-white p-6 shadow-sm">
+          <Link
+            href="/admin/submissions"
+            className="rounded-2xl border bg-white p-6 shadow-sm transition-all duration-200 hover:-translate-y-1 hover:border-gray-300 hover:shadow-lg"
+          >
             <h2 className="text-xl font-semibold">
-              📊 Dashboard
+              📝 Pending Submissions
             </h2>
 
             <p className="mt-2 text-gray-600">
-              More admin features like editing and deleting events will be
-              available soon.
+              Review community-submitted events before they appear on
+              TechieHub.
             </p>
-          </div>
+          </Link>
         </div>
 
         <button

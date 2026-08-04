@@ -7,9 +7,27 @@ import CategorySection from "@/components/home/CategorySection";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import { supabase } from "@/lib/supabase";
+import { createClient } from "@/lib/supabase/server";
 
 export default async function Home() {
   const now = new Date().toISOString();
+  const supabaseServer = await createClient();
+
+  const {
+    data: { user },
+  } = await supabaseServer.auth.getUser();
+
+  let isAdmin = false;
+
+  if (user) {
+    const { data: profile } = await supabaseServer
+      .from("profiles")
+      .select("role")
+      .eq("id", user.id)
+      .single();
+
+    isAdmin = profile?.role === "admin";
+  }
 
   const [
     { data: events, error },
@@ -99,6 +117,28 @@ export default async function Home() {
             </div>
           )}
         </section>
+        {!isAdmin && (
+          <section className="mt-20">
+           <div className="max-w-2xl rounded-3xl border border-gray-200 bg-gradient-to-br from-white to-gray-50 p-8 shadow-sm md:p-10">
+              <div className="max-w-2xl">
+                <h2 className="text-2xl font-bold tracking-tight text-gray-900 md:text-3xl">
+                  Know about a tech event we are missing?
+                </h2>
+
+                <p className="mt-3 text-lg text-gray-600">
+                  Let us know and help the Karachi tech community grow.
+                </p>
+
+                <Link
+                  href="/submit-event"
+                  className="mt-6 inline-flex items-center rounded-xl bg-black px-6 py-3 text-sm font-semibold text-white transition-colors duration-200 hover:bg-gray-800"
+                >
+                  Submit Here
+                </Link>
+              </div>
+            </div>
+          </section>
+        )}
       </main>
       <Footer />
     </>

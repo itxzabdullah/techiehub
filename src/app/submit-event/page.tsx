@@ -1,17 +1,24 @@
 "use client";
 import { fromZonedTime } from "date-fns-tz";
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import type { User } from "@supabase/supabase-js";
 
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import { supabase } from "@/lib/supabase";
 
 export default function SubmitEventPage() {
-  const router = useRouter();
 
-  const [checkingAuth, setCheckingAuth] = useState(true);
   const [title, setTitle] = useState("");
+  const [user, setUser] = useState<User | null>(null);
+  const [profile, setProfile] = useState<{
+    full_name: string;
+    role: string;
+  } | null>(null);
+
+
+  const [submittedByName, setSubmittedByName] = useState("");
+  const [submittedByEmail, setSubmittedByEmail] = useState("");
   const [description, setDescription] = useState("");
   const [category, setCategory] = useState("");
 
@@ -31,27 +38,58 @@ export default function SubmitEventPage() {
   const [success, setSuccess] = useState("");
   const [error, setError] = useState("");
 
+  const isAdmin = profile?.role === "admin";
+
+  const pageTitle = isAdmin ? "Publish an Event" : "Submit an Event";
+
+  const pageDescription = isAdmin
+    ? "Administrator Mode\nThis event will be published immediately."
+    : "Contribute to the growth of Karachi's tech community.\nYour submission will be reviewed before publication.";
+
+
   useEffect(() => {
-    async function checkAuth() {
-      try {
-        const {
-          data: { session },
-        } = await supabase.auth.getSession();
+    async function loadUser() {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
 
-        if (!session) {
-          router.replace("/login");
-          return;
-        }
-      } catch (err) {
-        console.error("Auth check failed:", err);
-        router.replace("/login");
-      } finally {
-        setCheckingAuth(false);
+      // Guest
+      if (!user) {
+        return;
       }
-    }
+      setUser(user);
 
-    checkAuth();
-  }, [router]);
+      const { data: profileData, error } = await supabase
+        .from("profiles")
+        .select("full_name, role")
+        .eq("id", user.id)
+        .single();
+
+      if (error) {
+        console.error("Failed to load profile:", error);
+        return;
+      }
+      setProfile(profileData);
+    }
+    loadUser();
+  }, []);
+
+
+  function resetForm() {
+    setTitle("");
+    setDescription("");
+    setCategory("");
+    setTags("");
+    setEventDate("");
+    setEventTime("");
+    setLocation("");
+    setOrganizer("");
+    setRegistrationLink("");
+    setImageUrl("");
+    setIsFree(true);
+    setSubmittedByName("");
+    setSubmittedByEmail("");
+  }
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -72,6 +110,19 @@ export default function SubmitEventPage() {
       return;
     }
 
+    if (!user) {
+      if (!submittedByName.trim() || !submittedByEmail.trim()) {
+        setError("Please provide your name and email.");
+        return;
+      }
+      const emailRegex = /\S+@\S+\.\S+/;
+
+      if (!emailRegex.test(submittedByEmail)) {
+        setError("Please enter a valid email address.");
+        return;
+      }
+    }
+
     setLoading(true);
 
     try {
@@ -82,44 +133,61 @@ export default function SubmitEventPage() {
         "Asia/Karachi"
       ).toISOString();
 
+      const eventData = {
+        title,
+        description,
+        category,
+        tags: tags
+          .split(",")
+          .map((tag) => tag.trim())
+          .filter(Boolean),
+
+        event_date: eventDateTime,
+        location,
+        organizer,
+        registration_link: registrationLink || null,
+        image_url: imageUrl || null,
+        is_free: isFree,
+      };
+
+      let table = "events";
+      let insertData: Record<string, any> = eventData;
+
+      if (!isAdmin) {
+        table = "submissions";
+
+        insertData = {
+          ...eventData,
+
+          submitted_by_name: user
+            ? profile?.full_name
+            : submittedByName,
+
+          submitted_by_email: user
+            ? user.email
+            : submittedByEmail,
+
+          user_id: user?.id ?? null,
+        };
+      }
+
       const { error } = await supabase
-        .from("events")
-        .insert([
-          {
-            title,
-            description,
-            category,
-            tags: tags
-              .split(",")
-              .map((tag) => tag.trim())
-              .filter(Boolean),
-            event_date: eventDateTime,
-            location,
-            organizer,
-            registration_link: registrationLink || null,
-            image_url: imageUrl || null,
-            is_free: isFree,
-          },
-        ]);
+        .from(table)
+        .insert([insertData]);
 
       if (error) {
         setError(error.message);
         return;
       }
 
-      setSuccess("Event submitted successfully!");
+      const successMessage = isAdmin
+        ? "Event published successfully."
+        : "Your event has been submitted successfully.\n\nIt will be reviewed before appearing on TechieHub.";
 
-      setTitle("");
-      setDescription("");
-      setCategory("");
-      setTags("");
-      setEventDate("");
-      setEventTime("");
-      setLocation("");
-      setOrganizer("");
-      setRegistrationLink("");
-      setImageUrl("");
-      setIsFree(true);
+      setSuccess(successMessage);
+
+      resetForm();
+
     } catch (err) {
       console.error(err);
       setError("Something went wrong while submitting the event.");
@@ -128,21 +196,6 @@ export default function SubmitEventPage() {
     }
   }
 
-  if (checkingAuth) {
-    return (
-      <div className="flex min-h-screen flex-col bg-gray-50/50">
-        <Navbar />
-
-        <main className="flex flex-1 items-center justify-center">
-          <div className="rounded-xl border bg-white p-8 shadow-sm">
-            <p className="text-gray-600">Checking authentication...</p>
-          </div>
-        </main>
-
-        <Footer />
-      </div>
-    );
-  }
   return (
     <div className="flex min-h-screen flex-col bg-gray-50/50">
       <Navbar />
@@ -151,21 +204,56 @@ export default function SubmitEventPage() {
         <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
           <div className="mb-8 text-center">
             <h1 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
-              Submit a Tech Event
+              {pageTitle}
             </h1>
-            <p className="mt-4 text-lg text-gray-500">
-              Host a hackathon, workshop, or meetup? Let the tech community in Karachi know.
+            <p className="mt-4 whitespace-pre-line text-lg text-gray-500">
+              {pageDescription}
             </p>
           </div>
-
           <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm sm:p-10">
             <form
               onSubmit={handleSubmit}
               className="space-y-8"
             >
+              {!user && (
+                <div className="space-y-6 mb-8">
+                  <h2 className="text-2xl font-semibold">User Details</h2>
+
+                  <div>
+                    <label className="block text-sm font-medium mb-2">
+                      Name
+                    </label>
+                    <input
+                      type="text"
+                      disabled={loading}
+                      value={submittedByName}
+                      onChange={(e) => setSubmittedByName(e.target.value)}
+                      placeholder="Your full name"
+                      className="w-full rounded-lg border px-4 py-3"
+                      required
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium mb-2">
+                      Email
+                    </label>
+                    <input
+                      type="email"
+                      disabled={loading}
+                      value={submittedByEmail}
+                      onChange={(e) => setSubmittedByEmail(e.target.value)}
+                      placeholder="you@example.com"
+                      className="w-full rounded-lg border px-4 py-3"
+                      required
+                    />
+                  </div>
+                </div>
+              )}
+
               <div className="space-y-6">
                 <div>
-                  <h2 className="text-lg font-semibold text-gray-900">Event Details</h2>
+                  <h2 className="text-lg font-semibold text-gray-900">Event Information</h2>
                   <p className="mt-1 text-sm text-gray-500">Provide the basic information about your event.</p>
                 </div>
 
@@ -177,6 +265,7 @@ export default function SubmitEventPage() {
                     <input
                       type="text"
                       id="title"
+                      disabled={loading}
                       value={title}
                       onChange={(e) => setTitle(e.target.value)}
                       className="mt-2 block w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm outline-none transition-colors focus:border-black focus:ring-1 focus:ring-black"
@@ -190,6 +279,7 @@ export default function SubmitEventPage() {
                     </label>
                     <select
                       id="category"
+                      disabled={loading}
                       value={category}
                       onChange={(e) => setCategory(e.target.value)}
                       className="mt-2 block w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm outline-none transition-colors focus:border-black focus:ring-1 focus:ring-black"
@@ -216,6 +306,7 @@ export default function SubmitEventPage() {
                     </label>
                     <textarea
                       id="description"
+                      disabled={loading}
                       value={description}
                       onChange={(e) => setDescription(e.target.value)}
                       rows={4}
@@ -234,6 +325,7 @@ export default function SubmitEventPage() {
                     <input
                       id="tags"
                       type="text"
+                      disabled={loading}
                       value={tags}
                       onChange={(e) => setTags(e.target.value)}
                       placeholder="AI, Python, Machine Learning, FAST, Beginners"
@@ -249,7 +341,7 @@ export default function SubmitEventPage() {
 
               <div className="space-y-6 pt-8 border-t border-gray-100">
                 <div>
-                  <h2 className="text-lg font-semibold text-gray-900">Date & Location</h2>
+                  <h2 className="text-lg font-semibold text-gray-900">Event Details</h2>
                 </div>
 
                 <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
@@ -259,6 +351,7 @@ export default function SubmitEventPage() {
                     </label>
                     <input
                       type="date"
+                      disabled={loading}
                       value={eventDate}
                       onChange={(e) => setEventDate(e.target.value)}
                       id="date"
@@ -271,6 +364,7 @@ export default function SubmitEventPage() {
                     </label>
                     <input
                       type="time"
+                      disabled={loading}
                       value={eventTime}
                       onChange={(e) => setEventTime(e.target.value)}
                       id="time"
@@ -283,6 +377,7 @@ export default function SubmitEventPage() {
                     </label>
                     <input
                       type="text"
+                      disabled={loading}
                       value={location}
                       onChange={(e) => setLocation(e.target.value)}
                       id="location"
@@ -301,6 +396,7 @@ export default function SubmitEventPage() {
                     <input
                       id="organizer"
                       type="text"
+                      disabled={loading}
                       value={organizer}
                       onChange={(e) => setOrganizer(e.target.value)}
                       placeholder="e.g. Google Developer Groups Karachi"
@@ -320,6 +416,7 @@ export default function SubmitEventPage() {
                     <input
                       id="registrationLink"
                       type="url"
+                      disabled={loading}
                       value={registrationLink}
                       onChange={(e) => setRegistrationLink(e.target.value)}
                       placeholder="https://..."
@@ -339,6 +436,7 @@ export default function SubmitEventPage() {
                     <input
                       id="imageUrl"
                       type="url"
+                      disabled={loading}
                       value={imageUrl}
                       onChange={(e) => setImageUrl(e.target.value)}
                       placeholder="https://example.com/image.jpg"
@@ -350,6 +448,7 @@ export default function SubmitEventPage() {
                     <input
                       id="isFree"
                       type="checkbox"
+                      disabled={loading}
                       checked={isFree}
                       onChange={(e) => setIsFree(e.target.checked)}
                       className="h-4 w-4"
@@ -372,17 +471,7 @@ export default function SubmitEventPage() {
                   type="button"
                   disabled={loading}
                   onClick={() => {
-                    setTitle("");
-                    setDescription("");
-                    setCategory("");
-                    setTags("");
-                    setEventDate("");
-                    setEventTime("");
-                    setLocation("");
-                    setOrganizer("");
-                    setRegistrationLink("");
-                    setImageUrl("");
-                    setIsFree(true);
+                    resetForm();
                     setError("");
                     setSuccess("");
                   }}
@@ -396,14 +485,16 @@ export default function SubmitEventPage() {
                   disabled={loading}
                   className="inline-flex h-11 items-center justify-center rounded-xl bg-black px-8 text-sm font-medium text-white shadow-sm transition-all hover:bg-gray-800 disabled:cursor-not-allowed disabled:opacity-60"
                 >
-                  {loading ? "Submitting..." : "Submit Event"}
+                  {loading
+                    ? "Submitting..."
+                    : isAdmin
+                      ? "Publish Event"
+                      : "Submit Event"}
                 </button>
               </div>
-
-
               {success && (
                 <div className="mb-6 rounded-xl border border-green-200 bg-green-50 p-4">
-                  <p className="text-green-700 font-medium">
+                  <p className="whitespace-pre-line text-green-700 font-medium">
                     ✅ {success}
                   </p>
                 </div>
