@@ -1,11 +1,12 @@
 "use client";
 import { fromZonedTime } from "date-fns-tz";
-import { useEffect, useState } from "react";
 import type { User } from "@supabase/supabase-js";
+import Image from "next/image";
+import { useEffect, useRef, useState } from "react";
 
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
-import { supabase } from "@/lib/supabase";
+import { supabase } from "@/lib/supabase/client";
 
 export default function SubmitEventPage() {
 
@@ -16,11 +17,11 @@ export default function SubmitEventPage() {
     role: string;
   } | null>(null);
 
-
   const [submittedByName, setSubmittedByName] = useState("");
   const [submittedByEmail, setSubmittedByEmail] = useState("");
   const [description, setDescription] = useState("");
   const [category, setCategory] = useState("");
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [eventDate, setEventDate] = useState("");
   const [eventTime, setEventTime] = useState("");
@@ -29,7 +30,10 @@ export default function SubmitEventPage() {
   const [organizer, setOrganizer] = useState("");
 
   const [registrationLink, setRegistrationLink] = useState("");
-  const [imageUrl, setImageUrl] = useState("");
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [uploadingImage, setUploadingImage] = useState(false);
+  
   const [tags, setTags] = useState("");
 
   const [isFree, setIsFree] = useState(true);
@@ -74,6 +78,14 @@ export default function SubmitEventPage() {
     loadUser();
   }, []);
 
+  useEffect(() => {
+  return () => {
+    if (previewUrl?.startsWith("blob:")) {
+      URL.revokeObjectURL(previewUrl);
+    }
+  };
+}, [previewUrl]);
+
 
   function resetForm() {
     setTitle("");
@@ -85,10 +97,11 @@ export default function SubmitEventPage() {
     setLocation("");
     setOrganizer("");
     setRegistrationLink("");
-    setImageUrl("");
+    setImageFile(null);
     setIsFree(true);
     setSubmittedByName("");
     setSubmittedByEmail("");
+    setPreviewUrl(null);
   }
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -126,6 +139,45 @@ export default function SubmitEventPage() {
     setLoading(true);
 
     try {
+
+      let imageUrl: string | null = null;
+
+      if (imageFile) {
+
+
+        const allowedTypes = [
+          "image/jpeg",
+          "image/png",
+          "image/webp",
+          "image/jpg",
+        ];
+
+        if (!allowedTypes.includes(imageFile.type)) {
+          setError("Only JPG, JPEG, PNG and WebP images are allowed.");
+          return;
+        }
+
+        if (imageFile.size > 5 * 1024 * 1024) {
+          setError("Image must be smaller than 5 MB.");
+          return;
+        }
+        const fileName =
+          `${crypto.randomUUID()}-${imageFile.name.replace(/\s+/g, "-")}`;
+        setUploadingImage(true);
+        const { error: uploadError } = await supabase.storage
+          .from("event-images")
+          .upload(fileName, imageFile);
+
+        if (uploadError) throw uploadError;
+
+        const { data } = supabase.storage
+          .from("event-images")
+          .getPublicUrl(fileName);
+
+        imageUrl = data.publicUrl;
+        setUploadingImage(false);
+      }
+
       const localDate = `${eventDate} ${eventTime}:00`;
 
       const eventDateTime = fromZonedTime(
@@ -146,7 +198,7 @@ export default function SubmitEventPage() {
         location,
         organizer,
         registration_link: registrationLink || null,
-        image_url: imageUrl || null,
+        image_url: imageUrl,
         is_free: isFree,
       };
 
@@ -189,9 +241,11 @@ export default function SubmitEventPage() {
       resetForm();
 
     } catch (err) {
+      setUploadingImage(false);
       console.error(err);
       setError("Something went wrong while submitting the event.");
     } finally {
+      setUploadingImage(false);
       setLoading(false);
     }
   }
@@ -426,22 +480,89 @@ export default function SubmitEventPage() {
 
                   <div className="sm:col-span-2">
                     <label
-                      htmlFor="imageUrl"
+                      htmlFor="image"
                       className="block text-sm font-medium text-gray-900"
                     >
-                      Event Image URL
+                      Event Image
                       <span className="text-gray-400"> (Optional)</span>
                     </label>
 
                     <input
-                      id="imageUrl"
-                      type="url"
+                      id="image"
+                      ref={fileInputRef}
+                      type="file"
+                      accept="image/jpeg,image/png,image/webp"
                       disabled={loading}
-                      value={imageUrl}
-                      onChange={(e) => setImageUrl(e.target.value)}
-                      placeholder="https://example.com/image.jpg"
-                      className="mt-2 block w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm outline-none transition-colors focus:border-black focus:ring-1 focus:ring-black"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+
+                        if (!file) return;
+
+                        if (!file.type.startsWith("image/")) {
+                          setError("Please select a valid image.");
+                          return;
+                        }
+
+                        if (file.size > 5 * 1024 * 1024) {
+                          setError("Image must be smaller than 5 MB.");
+                          return;
+                        }
+
+                        setError("");
+
+                        if (previewUrl?.startsWith("blob:")) {
+                          URL.revokeObjectURL(previewUrl);
+                        }
+
+                        setImageFile(file);
+                        setPreviewUrl(URL.createObjectURL(file));
+                      }}
+                      className="mt-2 block w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm file:mr-4 file:rounded-lg file:border-0 file:bg-black file:px-4 file:py-2 file:text-white file:transition-colors file:hover:bg-gray-800"
                     />
+                    {imageFile && (
+                      <p className="mt-2 text-sm text-gray-600">
+                        Selected: {imageFile.name}
+                      </p>
+                    )}
+                    {uploadingImage && (
+                      <div className="mt-3 flex items-center gap-2 text-sm text-gray-600">
+                        <div className="h-4 w-4 animate-spin rounded-full border-2 border-gray-400 border-t-black" />
+                        Uploading image...
+                      </div>
+                    )}
+                    {previewUrl && (
+                      <>
+                      <Image
+                        src={previewUrl}
+                        alt="Preview"
+                          width={800}
+                          height={450}
+                          className="mt-4 h-64 w-full rounded-xl border object-cover"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (previewUrl?.startsWith("blob:")) {
+                              URL.revokeObjectURL(previewUrl);
+                            }
+
+                            setImageFile(null);
+                            setPreviewUrl(null);
+                            if (fileInputRef.current) {
+                              fileInputRef.current.value = "";
+                            }
+
+                          }}
+                          className="mt-3 rounded-lg border px-4 py-2 text-sm hover:bg-gray-100"
+                        >
+                          Remove Image
+                        </button>
+                      </>
+                    )}
+                    <p className="mt-1 text-xs text-gray-500">
+                      JPG, PNG or WebP. Maximum file size: 5 MB.
+                    </p>
+
                   </div>
 
                   <div className="sm:col-span-2 flex items-center gap-3">

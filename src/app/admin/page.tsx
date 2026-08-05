@@ -1,78 +1,32 @@
-"use client";
-
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
-
+import { redirect } from "next/navigation";
+import { createClient } from "@/lib/supabase/server";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
-import { supabase } from "@/lib/supabase";
+import LogoutButton from "@/components/admin/LogoutButton";
 
-export default function AdminPage() {
-  const router = useRouter();
+export default async function AdminPage() {
+  const supabase = await createClient();
 
-  const [loading, setLoading] = useState(true);
-  const [email, setEmail] = useState("");
+const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
-  useEffect(() => {
-    async function checkUser() {
-      try {
-        const {
-          data: { session },
-        } = await supabase.auth.getSession();
-
-        // User is not logged in
-        if (!session) {
-          router.replace("/login");
-          return;
-        }
-
-        // Verify admin role
-        const { data: profile, error } = await supabase
-          .from("profiles")
-          .select("role")
-          .eq("id", session.user.id)
-          .single();
-
-        if (error || profile?.role !== "admin") {
-          router.replace("/");
-          return;
-        }
-
-        setEmail(session.user.email ?? "");
-      } catch (err) {
-        console.error("Failed to verify admin:", err);
-        router.replace("/");
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    checkUser();
-  }, [router]);
-
-  async function handleLogout() {
-    await supabase.auth.signOut();
-
-    router.push("/");
-    router.refresh();
+  if (!user) {
+    redirect("/login");
   }
 
-  if (loading) {
-    return (
-      <div className="flex min-h-screen flex-col bg-gray-50">
-        <Navbar />
+  const { data: profile, error } = await supabase
+  .from("profiles")
+  .select("role")
+  .eq("id", user.id)
+  .single();
 
-        <main className="flex flex-1 items-center justify-center">
-          <div className="rounded-xl border bg-white p-8 shadow-sm">
-            <p className="text-gray-600">Loading dashboard...</p>
-          </div>
-        </main>
+if (error || profile?.role !== "admin") {
+  redirect("/");
+}
 
-        <Footer />
-      </div>
-    );
-  }
+  const email = user.email ?? "";
 
   return (
     <div className="flex min-h-screen flex-col bg-gray-50">
@@ -129,15 +83,8 @@ export default function AdminPage() {
             </p>
           </Link>
         </div>
-
-        <button
-          onClick={handleLogout}
-          className="mt-10 rounded-xl bg-red-600 px-6 py-3 font-medium text-white transition hover:bg-red-700"
-        >
-          Logout
-        </button>
+        <LogoutButton />
       </main>
-
       <Footer />
     </div>
   );

@@ -5,7 +5,7 @@ import Footer from "@/components/layout/Footer";
 import EventCard from "@/components/events/EventCard";
 import EmptyState from "@/components/EmptyState";
 import { Search } from "lucide-react";
-import { supabase } from "@/lib/supabase";
+import { supabase } from "@/lib/supabase/client";
 
 const CATEGORIES = [
   "All",

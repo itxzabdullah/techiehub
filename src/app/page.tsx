@@ -6,7 +6,6 @@ import HeroSection from "@/components/home/HeroSection";
 import CategorySection from "@/components/home/CategorySection";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
-import { supabase } from "@/lib/supabase";
 import { createClient } from "@/lib/supabase/server";
 
 export default async function Home() {
@@ -28,22 +27,21 @@ export default async function Home() {
 
     isAdmin = profile?.role === "admin";
   }
+ const [
+  { data: events, error },
+  { count: totalEvents },
+] = await Promise.all([
+  supabaseServer
+    .from("events")
+    .select("*")
+    .gte("event_date", now)
+    .order("event_date", { ascending: true })
+    .limit(6),
 
-  const [
-    { data: events, error },
-    { count: totalEvents },
-  ] = await Promise.all([
-    supabase
-      .from("events")
-      .select("*")
-      .gte("event_date", now)
-      .order("event_date", { ascending: true })
-      .limit(6),
-
-    supabase
-      .from("events")
-      .select("*", { count: "exact", head: true }),
-  ]);
+  supabaseServer
+    .from("events")
+    .select("*", { count: "exact", head: true }),
+]);
 
   if (error) {
     return (
@@ -70,7 +68,7 @@ export default async function Home() {
   return (
     <>
       <Navbar />
-      <HeroSection totalEvents={totalEvents ?? 0} />
+      <HeroSection isAdmin={isAdmin} totalEvents={totalEvents ?? 0} />
       <CategorySection categories={categories} />
       <main className="mx-auto max-w-7xl px-4 pt-6 pb-16 sm:px-6 lg:px-8">
         <section>

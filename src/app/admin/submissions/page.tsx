@@ -1,167 +1,111 @@
-"use client";
-
-import type { Submission } from "@/types/submission";
+import { redirect } from "next/navigation";
+import { createClient } from "@/lib/supabase/server";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
-
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
-import { supabase } from "@/lib/supabase";
 
-export default function AdminSubmissionsPage() {
-  const router = useRouter();
-  const [statusFilter, setStatusFilter] = useState<
-    "pending" | "approved" | "rejected"
-  >("pending");
-  const [submissions, setSubmissions] = useState<Submission[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+function formatCategory(category: string) {
+  return category
+    .replace("-", " ")
+    .replace(/\b\w/g, (c: string) => c.toUpperCase());
+}
 
-  useEffect(() => {
-    let cancelled = false;
+export default async function AdminSubmissionsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ status?: string }>;
+}) {
+  const { status } = await searchParams;
 
-    async function initializePage() {
-      try {
-        const {
-          data: { session },
-        } = await supabase.auth.getSession();
+  const statusFilter =
+    status === "approved" || status === "rejected"
+      ? status
+      : "pending";
+  const supabase = await createClient();
 
-        // User is not logged in
-        if (!session) {
-          router.replace("/login");
-          return;
-        }
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
-        // Verify admin role
-        const { data: profile, error: profileError } = await supabase
-          .from("profiles")
-          .select("role")
-          .eq("id", session.user.id)
-          .single();
-
-        if (profileError || profile?.role !== "admin") {
-          router.replace("/");
-          return;
-        }
-
-        // Load pending submissions
-        const { data, error } = await supabase
-          .from("submissions")
-          .select("*")
-          .eq("status", statusFilter)
-          .order("submitted_at", { ascending: false });
-
-        if (error) {
-          if (!cancelled) {
-            setError(error.message);
-          }
-          return;
-        }
-
-        if (!cancelled) {
-          setSubmissions(data ?? []);
-        }
-      } catch (err) {
-        console.error("Failed to load submissions:", err);
-
-        if (!cancelled) {
-          setError("Something went wrong.");
-        }
-      } finally {
-        if (!cancelled) {
-          setLoading(false);
-        }
-      }
-    }
-
-    initializePage();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [router, statusFilter]);
-
-  if (loading) {
-    return (
-      <div className="flex min-h-screen flex-col bg-gray-50">
-        <Navbar />
-
-        <main className="flex flex-1 items-center justify-center">
-          <p className="text-gray-600">Loading submissions...</p>
-        </main>
-
-        <Footer />
-      </div>
-    );
+  if (!user) {
+    redirect("/login");
   }
+  const { data: profile, error: profileError } = await supabase
+    .from("profiles")
+    .select("role")
+    .eq("id", user.id)
+    .single();
+
+  if (profileError || profile?.role !== "admin") {
+    redirect("/");
+  }
+
+  const { data: submissions, error } = await supabase
+    .from("submissions")
+    .select("*")
+    .eq("status", statusFilter)
+    .order("submitted_at", { ascending: false });
 
   if (error) {
     return (
-      <div className="flex min-h-screen flex-col bg-gray-50">
-        <Navbar />
-
-        <main className="flex flex-1 items-center justify-center">
-          <p className="text-red-600">{error}</p>
-        </main>
-
-        <Footer />
+      <div className="flex min-h-screen items-center justify-center">
+        {error.message}
       </div>
     );
   }
-
   return (
     <div className="flex min-h-screen flex-col bg-gray-50">
       <Navbar />
 
       <main className="mx-auto w-full max-w-7xl flex-1 px-6 py-16">
         <h1 className="text-4xl font-bold capitalize">
-          {statusFilter} Submissions ({submissions.length})
+          {statusFilter} Submissions ({submissions?.length ?? 0})
         </h1>
 
         <p className="mt-2 text-gray-600">
           Review community-submitted events before publication.
         </p>
-
         <div className="mt-8 flex gap-3">
-          <button
-            onClick={() => setStatusFilter("pending")}
+          <Link
+            href="/admin/submissions?status=pending"
             className={`rounded-full px-4 py-2 text-sm font-medium transition ${statusFilter === "pending"
                 ? "bg-black text-white"
                 : "bg-gray-100 hover:bg-gray-200"
               }`}
           >
             Pending
-          </button>
+          </Link>
 
-          <button
-            onClick={() => setStatusFilter("approved")}
+          <Link
+            href="/admin/submissions?status=approved"
             className={`rounded-full px-4 py-2 text-sm font-medium transition ${statusFilter === "approved"
                 ? "bg-green-600 text-white"
                 : "bg-gray-100 hover:bg-gray-200"
               }`}
           >
             Approved
-          </button>
+          </Link>
 
-          <button
-            onClick={() => setStatusFilter("rejected")}
+          <Link
+            href="/admin/submissions?status=rejected"
             className={`rounded-full px-4 py-2 text-sm font-medium transition ${statusFilter === "rejected"
                 ? "bg-red-600 text-white"
                 : "bg-gray-100 hover:bg-gray-200"
               }`}
           >
             Rejected
-          </button>
+          </Link>
         </div>
-
-        {submissions.length === 0 ? (
+        {(submissions?.length ?? 0) === 0 ? (
           <div className="mt-10 rounded-2xl border bg-white p-10 text-center shadow-sm">
             <h2 className="text-xl font-semibold">
-              No pending submissions
+              No {statusFilter} submissions
             </h2>
 
+            <p className="mt-2 text-gray-600">
+              There are currently no {statusFilter} submissions.
+            </p>
             <p className="mt-2 text-gray-600">
               You're all caught up.
             </p>
@@ -205,16 +149,14 @@ export default function AdminSubmissionsPage() {
               </thead>
 
               <tbody className="divide-y divide-gray-100">
-                {submissions.map((submission) => (
+                {submissions?.map((submission) => (
                   <tr key={submission.id}>
                     <td className="px-6 py-4 font-medium">
                       {submission.title}
                     </td>
 
                     <td className="px-6 py-4">
-                      {submission.category
-                        .replace("-", " ")
-                        .replace(/\b\w/g, (c) => c.toUpperCase())}
+                      {formatCategory(submission.category)}
                     </td>
 
                     <td className="px-6 py-4">
@@ -255,7 +197,6 @@ export default function AdminSubmissionsPage() {
           </div>
         )}
       </main>
-
       <Footer />
     </div>
   );

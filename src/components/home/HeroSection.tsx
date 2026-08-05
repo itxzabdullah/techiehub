@@ -2,11 +2,13 @@ import Link from "next/link";
 import { Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-interface HeroSectionProps {
-  totalEvents: number;
-}
 
-export default function HeroSection({ totalEvents }: HeroSectionProps) {
+type HeroSectionProps = {
+  isAdmin: boolean;
+  totalEvents: number;
+};
+
+export default function HeroSection({ isAdmin, totalEvents }: HeroSectionProps) {
   return (
     <section className="relative overflow-hidden bg-white px-4 pt-16 pb-16 sm:px-6 lg:px-8 lg:pt-20">
       {/* Background */}
@@ -59,15 +61,27 @@ export default function HeroSection({ totalEvents }: HeroSectionProps) {
             </Button>
           </Link>
 
-          <Link href="/recommend">
-            <Button
-              variant="outline"
-              size="lg"
-              className="rounded-full px-8"
-            >
-              AI Recommendations
-            </Button>
-          </Link>
+          {isAdmin ? (
+            <Link href="/admin">
+              <Button
+                size="lg"
+                variant="outline"
+                className="rounded-full px-8"
+              >
+                Go to Dashboard
+              </Button>
+            </Link>
+          ) : (
+            <Link href="/recommend">
+              <Button
+                size="lg"
+                variant="outline"
+                className="rounded-full px-8"
+              >
+                Get AI Recommendations
+              </Button>
+            </Link>
+          )}
         </div>
 
         {/* Stats */}
