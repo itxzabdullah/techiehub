@@ -243,7 +243,8 @@ export default function SubmitEventPage() {
     } catch (err) {
       setUploadingImage(false);
       console.error(err);
-      setError("Something went wrong while submitting the event.");
+      //setError("Something went wrong while submitting the event.");
+      console.error("Submit Error:", error);
     } finally {
       setUploadingImage(false);
       setLoading(false);
