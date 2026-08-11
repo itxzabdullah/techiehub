@@ -5,6 +5,7 @@ import { Menu, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase/client";
+import Image from "next/image";
 
 const navLinks = [
   { name: "Home", href: "/" },
@@ -54,15 +55,16 @@ export default function Navbar() {
         {/* Logo */}
         <Link
           href="/"
-          className="flex items-center gap-3 transition-opacity hover:opacity-90"
+          className="flex items-center transition-opacity hover:opacity-90"
         >
-          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary font-bold text-primary-foreground">
-            TH
-          </div>
-
-          <span className="text-xl font-bold tracking-tight text-foreground">
-            TechieHub
-          </span>
+          <Image
+            src="/logo-horizontal.png"
+            alt="Techie Hub"
+            width={180}
+            height={48}
+            priority
+            className="h-27 w-auto object-contain"
+          />
         </Link>
 
         {/* Desktop Navigation */}
