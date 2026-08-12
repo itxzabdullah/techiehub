@@ -18,7 +18,7 @@ export default function Footer() {
                 alt="TechieHub"
                 width={220}
                 height={59}
-                className="h-auto w-[200px]"
+                className="h-auto w-44 sm:w-48"
               />
             </Link>
 
