@@ -79,7 +79,7 @@ export default async function EventPage({
             </div>
           )}
 
-         <div className="p-5 sm:p-7">
+          <div className="p-5 sm:p-7">
 
             {/* Category */}
             <div className="mb-4 inline-flex rounded-full bg-blue-100 px-3 py-1 text-sm font-medium text-blue-700">
@@ -151,27 +151,28 @@ export default async function EventPage({
             )}
 
             {/* Actions */}
-            <div className="mt-10 flex flex-col gap-10 border-t pt-6 sm:flex-row">
+            <div className="mt-10 border-t pt-6">
+              <div className="mx-auto flex w-full max-w-md items-center justify-between">
 
-              {event.registration_link && (
-                <a
-                  href={event.registration_link}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center justify-center gap-2 rounded-lg bg-black px-5 py-3 text-sm font-medium text-white transition hover:bg-gray-800"
-                >
-                  Visit Event Page
-                  <ExternalLink className="h-4 w-4" />
-                </a>
-              )}
+                {event.registration_link && (
+                  <a
+                    href={event.registration_link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center justify-center gap-2 rounded-lg bg-black px-5 py-3 text-sm font-medium text-white transition hover:bg-gray-800"
+                  >
+                    Learn More
+                    <ExternalLink className="h-4 w-4" />
+                  </a>
+                )}
 
-              <ShareEvent
-                id={event.id}
-                title={event.title}
-              />
+                <ShareEvent
+                  id={event.id}
+                  title={event.title}
+                />
 
+              </div>
             </div>
-
           </div>
         </article>
       </main>

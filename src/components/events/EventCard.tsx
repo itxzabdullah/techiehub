@@ -1,8 +1,6 @@
-"use client";
-
 import { Event } from "@/types/event";
-import { Calendar, MapPin, User, Tag, ArrowRight, Share2 } from "lucide-react";
-import { useState } from "react";
+import { Calendar, MapPin, User, Tag, ArrowRight, Share2, ExternalLink } from "lucide-react";
+import ShareEvent from "@/components/events/ShareEvent";
 
 interface EventCardProps {
   event: Event;
@@ -10,7 +8,6 @@ interface EventCardProps {
 
 export default function EventCard({ event }: EventCardProps) {
   const date = new Date(event.event_date);
-  const [copied, setCopied] = useState(false);
 
   const formattedDate =
     date.toLocaleDateString("en-GB", {
@@ -38,24 +35,6 @@ export default function EventCard({ event }: EventCardProps) {
     (event.tags?.length ?? 0) - MAX_VISIBLE_TAGS,
     0
   );
-
-  const handleShare = async (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.preventDefault();
-
-    const eventUrl = `${window.location.origin}/events/${event.id}`;
-
-    try {
-      await navigator.clipboard.writeText(eventUrl);
-
-      setCopied(true);
-
-      setTimeout(() => {
-        setCopied(false);
-      }, 2000);
-    } catch (error) {
-      console.error("Failed to copy event link:", error);
-    }
-  };
 
   return (
     <div className="group flex h-[800px] flex-col overflow-hidden rounded-2xl border bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-lg">
@@ -147,35 +126,30 @@ export default function EventCard({ event }: EventCardProps) {
             </div>
 
           </div>
+          <div className="mt-5 border-t pt-3">
+            <div className="mx-auto flex w-full max-w-sm items-center justify-between px-2">
 
-          {/* Actions */}
-          <div className="mt-5 flex items-center gap-26 border-t pt-3">
+              {/* Learn More */}
+              {event.registration_link && (
+                <a
+                  href={event.registration_link}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center justify-center gap-2 rounded-lg bg-black px-4 py-2 text-sm font-medium text-white transition hover:bg-gray-800"
+                >
+                  Learn More
+                  <ExternalLink className="h-4 w-4" />
+                </a>
+              )}
 
-            {/* Learn More */}
-            {event.registration_link && (
-              <a
-                href={event.registration_link}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 rounded-lg bg-black px-4 py-2 text-sm font-medium text-white transition hover:bg-gray-800"
-              >
-                Learn More
-                <ArrowRight className="h-4 w-4" />
-              </a>
-            )}
+              {/* Share */}
+              <ShareEvent
+                id={event.id}
+                title={event.title}
+              />
 
-            {/* Share */}
-            <button
-              type="button"
-              onClick={handleShare}
-              className="inline-flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-50"
-            >
-              <Share2 className="h-4 w-4" />
-              {copied ? "Copied!" : "Share"}
-            </button>
-
+            </div>
           </div>
-
         </div>
       </div>
     </div>

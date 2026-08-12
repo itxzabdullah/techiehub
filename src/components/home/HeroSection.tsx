@@ -17,16 +17,16 @@ export default function HeroSection({ isAdmin, totalEvents }: HeroSectionProps) 
       <div className="mx-auto max-w-6xl text-center">
         {/* Heading */}
         <h1 className="text-5xl font-extrabold tracking-tight text-gray-900 sm:text-6xl lg:text-7xl">
-          Discover the Best
+          Discover the Next
           <br className="hidden sm:block" />
-          <span className="text-black">Tech Events in Karachi</span>
+          <span className="text-black"> Tech Event in Karachi</span>
         </h1>
 
         {/* Description */}
         <p className="mx-auto mt-6 max-w-3xl text-lg leading-6 text-gray-600 sm:text-xl">
           Discover Hackathons, AI related events, Startup meetups, Workshops,
-          Conferences, Cybersecurity events, University tech gatherings,
-          and Developer communities happening across Karachi, All in one place.
+          Conferences, University tech gatherings, and many more, happening
+          across Karachi, All in one place.
         </p>
 
         {/* Search UI */}

@@ -18,17 +18,19 @@ export default function AboutPage() {
 
           <div className="mx-auto mt-10 max-w-4xl space-y-7 text-lg leading-8 text-gray-600">
             <p>
-              Techie Hub is a platform designed to discover and share tech
-              related events in Karachi. It enables users to browse upcoming
-              hackathons, workshops, conferences, AI events, meetups, startups,
-              and more all in one place. To submit an event, users can use the
-              designated interface to enter event details. Once submitted, the
-              events are then reviewed by admin and publised to the site upon
-              approval.
+              Techie Hub is an AI powered event discovery platform designed to
+              discover and share tech related events happening in Karachi. It
+              allows users to browse upcoming Hackathons, Workshops, Conferences,
+              Meetups, Startups, and more all in one place, with links to the official
+              event sites. On top of that, users can get AI powered personalized
+              events suggestions based on their interests. To submit an event,
+              users can use the designated interface to enter event details.
+              Once submitted, the events are then reviewed by admin and publised
+              to the site upon approval.
             </p>
 
             <p>
-              The motivation behind this project is my personal experience
+             The idea behind Techie Hub is my personal eis my personal experience
               while looking for different technology events happening in
               Karachi. The purpose of the project is to maximize the student
               involvement in different communities so that they would never

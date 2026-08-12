@@ -24,8 +24,9 @@ export default function Footer() {
 
             <p className="mt-5 max-w-xl text-sm leading-6 text-gray-500">
               An AI powered event discovery platform for tech related events
-              happening in Karachi including Hackathons, Workshops,
-              Conferences, Developer Meetups and many more, all in one place.
+              happening in Karachi. Discover Hackathons, AI related events,
+              Startup meetups, Workshops, Conferences, University tech gatherings,
+              and many more, All in one place.
             </p>
           </div>
 
