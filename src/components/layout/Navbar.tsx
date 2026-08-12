@@ -63,11 +63,11 @@ export default function Navbar() {
             width={180}
             height={48}
             priority
-            className="h-27 w-auto object-contain"
+            className="h-auto w-32 sm:w-40 lg:w-44 object-contain"
           />
         </Link>
 
-        {/* Desktop Navigation */}
+        { }
         <div className="hidden items-center gap-8 md:flex">
           <div className="flex items-center gap-6">
             {navLinks.map((link) => (
