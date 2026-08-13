@@ -13,9 +13,10 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://techiehub-ten.vercel.app"),
   title: "Techie Hub",
   description:
-    "AI powered event discovery platform for tech communities specifically in Karachi.",
+    "Discover tech events in Karachi.",
   icons: {
     icon: [
       { url: "/favicon-16x16.png", sizes: "16x16", type: "image/png" },

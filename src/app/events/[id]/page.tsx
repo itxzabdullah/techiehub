@@ -38,9 +38,9 @@ export async function generateMetadata({
   }
 
   const description =
-  event.description.length > 160
-    ? `${event.description.slice(0, 157)}...`
-    : event.description;
+    event.description.length > 160
+      ? `${event.description.slice(0, 157)}...`
+      : event.description;
 
   return {
     title: `${event.title} | Techie Hub`,
@@ -52,21 +52,23 @@ export async function generateMetadata({
       type: "website",
       images: event.image_url
         ? [
-            {
-              url: event.image_url,
-              width: 1200,
-              height: 630,
-              alt: event.title,
-            },
-          ]
-        : [],
+          {
+            url: event.image_url,
+            width: 1200,
+            height: 630,
+            alt: event.title,
+          },
+        ]
+        : ["/og-image.png"],
     },
 
     twitter: {
       card: "summary_large_image",
       title: event.title,
       description,
-      images: event.image_url ? [event.image_url] : [],
+      images: event.image_url
+        ? [event.image_url]
+        : ["/og-image.png"],
     },
   };
 }
