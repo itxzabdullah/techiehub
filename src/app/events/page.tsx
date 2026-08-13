@@ -1,10 +1,11 @@
 export const dynamic = "force-dynamic";
+
 import Navbar from "@/components/layout/Navbar";
 import Link from "next/link";
 import Footer from "@/components/layout/Footer";
 import EventCard from "@/components/events/EventCard";
 import EmptyState from "@/components/EmptyState";
-import { Search } from "lucide-react";
+import EventSearchForm from "@/components/events/EventSearchForm";
 import { createClient } from "@/lib/supabase/server";
 
 const CATEGORIES = [
@@ -32,68 +33,107 @@ export default async function ExplorePage({
   }>;
 }) {
   const { category, search } = await searchParams;
+
+  const normalizedSearch = search?.trim() || "";
+  const normalizedCategory =
+    category && category !== "All" ? category.trim() : "";
+
   const now = new Date().toISOString();
   const supabase = await createClient();
 
-  let upcomingQuery = supabase
-    .from("events")
-    .select("*")
-    .gte("event_date", now)
-    .order("event_date", { ascending: true });
+  let upcomingEvents: any[] = [];
+  let pastEvents: any[] = [];
+  let searchResults: any[] = [];
 
-  let pastQuery = supabase
-    .from("events")
-    .select("*")
-    .lt("event_date", now)
-    .order("event_date", { ascending: false });
+  /*
+   * FILTERED MODE
+   *
+   * Search and/or category uses the same fuzzy
+   * PostgreSQL search function as the homepage.
+   *
+   * Returns:
+   * - past events
+   * - upcoming events
+   * - all matching results
+   * - typo-tolerant results
+   * - search + category together
+   */
+  if (normalizedSearch || normalizedCategory) {
+    const { data, error } = await supabase.rpc("search_events", {
+      search_query: normalizedSearch || null,
+      search_category: normalizedCategory || null,
+    });
 
-  if (category && category !== "All") {
-    upcomingQuery = upcomingQuery.ilike("category", category);
-    pastQuery = pastQuery.ilike("category", category);
-  }
+    if (error) {
+      return (
+        <div className="flex min-h-screen items-center justify-center">
+          <p className="text-red-500">
+            Error loading events: {error.message}
+          </p>
+        </div>
+      );
+    }
 
-  if (search) {
-    const filters = [
-      `title.ilike.%${search}%`,
-      `description.ilike.%${search}%`,
-      `organizer.ilike.%${search}%`,
-      `location.ilike.%${search}%`,
-      `category.ilike.%${search}%`,
-      `tags.cs.{${search}}`,
-    ].join(",");
+    searchResults = data ?? [];
 
-    upcomingQuery = upcomingQuery.or(filters);
-    pastQuery = pastQuery.or(filters);
-  }
-
-  const [
-    { data: upcomingEvents, error: upcomingError },
-    { data: pastEvents, error: pastError },
-  ] = await Promise.all([
-    upcomingQuery,
-    pastQuery,
-  ]);
-
-  const searchResults = [
-    ...(upcomingEvents ?? []),
-    ...(pastEvents ?? []),
-  ];
-
-  if (upcomingError || pastError) {
-    return (
-      <div className="flex min-h-screen items-center justify-center">
-        <p className="text-red-500">
-          Error loading events.
-        </p>
-      </div>
+    /*
+     * Split matching results into upcoming and past.
+     */
+    upcomingEvents = searchResults.filter(
+      (event) => new Date(event.event_date) >= new Date(now)
     );
+
+    pastEvents = searchResults.filter(
+      (event) => new Date(event.event_date) < new Date(now)
+    );
+  } else {
+    /*
+     * NORMAL EXPLORE PAGE
+     *
+     * No filters:
+     * - Upcoming Events
+     * - Past Events
+     */
+    const [
+      { data: upcoming, error: upcomingError },
+      { data: past, error: pastError },
+    ] = await Promise.all([
+      supabase
+        .from("events")
+        .select("*")
+        .gte("event_date", now)
+        .order("event_date", { ascending: true }),
+
+      supabase
+        .from("events")
+        .select("*")
+        .lt("event_date", now)
+        .order("event_date", { ascending: false }),
+    ]);
+
+    if (upcomingError || pastError) {
+      return (
+        <div className="flex min-h-screen items-center justify-center">
+          <p className="text-red-500">
+            Error loading events.
+          </p>
+        </div>
+      );
+    }
+
+    upcomingEvents = upcoming ?? [];
+    pastEvents = past ?? [];
   }
+
+  const isFiltered =
+    Boolean(normalizedSearch) || Boolean(normalizedCategory);
 
   return (
     <div className="flex min-h-screen flex-col bg-gray-50/50">
       <Navbar />
 
       <main className="flex-1">
+        {/* Header */}
         <div className="border-b border-gray-200 bg-white px-4 py-8 sm:px-6 lg:px-8">
           <div className="mx-auto max-w-7xl">
             <h1 className="text-3xl font-bold tracking-tight text-gray-900">
@@ -104,46 +144,17 @@ export default async function ExplorePage({
               Find the perfect tech event in Karachi to attend, learn, and
               network.
             </p>
+
             <div className="mt-6 flex flex-col gap-4">
+              {/* Search */}
               <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-                <form
-                  action="/events"
-                  method="GET"
-                  className="relative flex-1"
-                >
-                  {/* Preserve selected category */}
-                  {category && (
-                    <input
-                      type="hidden"
-                      name="category"
-                      value={category}
-                    />
-                  )}
 
-                  <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                    <Search
-                      className="h-4 w-4 text-gray-400"
-                      aria-hidden="true"
-                    />
-                  </div>
+                <EventSearchForm
+                  search={normalizedSearch}
+                  category={normalizedCategory}
+                />
 
-                  <input
-                    type="text"
-                    name="search"
-                    defaultValue={search}
-                    placeholder="Search events..."
-                    className="block w-full rounded-xl border border-gray-200 py-2.5 pl-10 pr-24 text-sm placeholder:text-gray-400 focus:border-black focus:ring-1 focus:ring-black outline-none transition-colors"
-                  />
-
-                  <button
-                    type="submit"
-                    className="absolute right-2 top-1/2 -translate-y-1/2 rounded-lg bg-black px-4 py-2 text-sm font-medium text-white hover:bg-gray-800"
-                  >
-                    Search
-                  </button>
-                </form>
-
-                {(search || (category && category !== "All")) && (
+                {isFiltered && (
                   <Link
                     href="/events"
                     className="inline-flex items-center justify-center rounded-lg border border-gray-200 px-4 py-2.5 text-sm font-medium text-gray-700 transition hover:bg-gray-100"
@@ -152,142 +163,137 @@ export default async function ExplorePage({
                   </Link>
                 )}
               </div>
-
-              <div className="flex flex-wrap gap-2">
-                {CATEGORIES.slice(0, 5).map((item) => (
-                  <Link
-                    key={item}
-                    href={
-                      item === "All"
-                        ? search
-                          ? `/events?search=${encodeURIComponent(search)}`
-                          : "/events"
-                        : `/events?category=${encodeURIComponent(item)}${search ? `&search=${encodeURIComponent(search)}` : ""
-                        }`
-                    }
-                    className={`inline-flex items-center justify-center rounded-lg px-4 py-2 text-sm font-medium transition-colors ${(!category && item === "All") || category === item
-                        ? "bg-black text-white"
-                        : "border border-gray-200 bg-white text-gray-700 hover:bg-gray-50"
-                      }`}
-                  >
-                    {item}
-                  </Link>
-                ))}
-              </div>
             </div>
           </div>
         </div>
 
+        {/* Main content */}
         <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
           <div className="flex flex-col gap-8 md:flex-row">
             {/* Sidebar */}
-            <aside className="w-full flex-shrink-0 space-y-8 md:w-64">
+            <aside className="w-full flex-shrink-0 space-y-8 md:w-48 lg:w-52">
               <div>
                 <h3 className="text-sm font-semibold text-gray-900">
                   Categories
                 </h3>
 
-                <div className="mt-4 space-y-3">
-                  {CATEGORIES.slice(1).map((item) => (
-                    <Link
-                      key={item}
-                      href={`/events?category=${encodeURIComponent(item)}${
-                        search ? `&search=${encodeURIComponent(search)}` : ""
-                        }`}
-                      className={`block rounded-lg px-3 py-2 text-sm transition ${category === item
+                <div className="mt-4 flex flex-col items-start gap-1.5">
+                  <Link
+                    href={
+                      normalizedSearch
+                        ? `/events?search=${encodeURIComponent(normalizedSearch)}`
+                        : "/events"
+                    }
+                    className={`inline-flex w-fit max-w-full rounded-lg px-3 py-2 text-sm transition ${!normalizedCategory
                         ? "bg-black text-white"
                         : "text-gray-700 hover:bg-gray-100"
-                        }`}
-                    >
-                      {item}
-                    </Link>
-                  ))}
+                      }`}
+                  >
+                    All
+                  </Link>
+
+                  {CATEGORIES.slice(1).map((item) => {
+                    const params = new URLSearchParams();
+
+                    params.set("category", item);
+
+                    if (normalizedSearch) {
+                      params.set("search", normalizedSearch);
+                    }
+
+                    return (
+                      <Link
+                        key={item}
+                        href={`/events?${params.toString()}`}
+                        scroll={false}
+                        className={`inline-flex w-fit max-w-full rounded-lg px-3 py-2 text-sm transition ${normalizedCategory.toLowerCase() === item.toLowerCase()
+                            ? "bg-black text-white"
+                            : "text-gray-700 hover:bg-gray-100"
+                          }`}
+                      >
+                        {item}
+                      </Link>
+                    );
+                  })}
                 </div>
               </div>
             </aside>
 
             {/* Events */}
             <section className="flex-1 space-y-12">
-              {search ? (
+              {/* Filter/Search heading */}
+              {isFiltered && (
                 <div>
                   <h2 className="mb-2 text-2xl font-bold">
-                    Search Results
+                    {normalizedSearch
+                      ? `Search Results for "${normalizedSearch}"`
+                      : `${normalizedCategory} Events`}
                   </h2>
 
-                  <p className="mb-6 text-sm text-gray-500">
-                    Showing {searchResults.length} result
-                    {searchResults.length !== 1 ? "s" : ""} for "{search}"
+                  <p className="text-sm text-gray-500">
+                    {normalizedSearch && normalizedCategory
+                      ? `Showing ${searchResults.length} matching event${searchResults.length !== 1 ? "s" : ""
+                      } in ${normalizedCategory}.`
+                      : normalizedSearch
+                        ? `Showing ${searchResults.length} matching event${searchResults.length !== 1 ? "s" : ""
+                        }.`
+                        : `Showing ${searchResults.length} ${normalizedCategory} event${searchResults.length !== 1 ? "s" : ""
+                        }.`}
                   </p>
-
-                  {searchResults.length === 0 ? (
-                    <EmptyState
-                      title="No events found"
-                      description={`No events matched "${search}".`}
-                    />
-                  ) : (
-                    <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-3">
-                      {searchResults.map((event) => (
-                        <EventCard
-                          key={event.id}
-                          event={event}
-                        />
-                      ))}
-                    </div>
-                  )}
                 </div>
-              ) : (
-                <>
-                  {/* Upcoming Events */}
-                  <div>
-                    <h2 className="mb-6 text-2xl font-bold">
-                      Upcoming Events
-                    </h2>
+              )}
 
-                    {!upcomingEvents || upcomingEvents.length === 0 ? (
-                      <EmptyState
-                        title="No upcoming events"
-                        description="Check back soon."
+              {/* UPCOMING EVENTS */}
+              <div>
+                <h2 className="mb-6 text-2xl font-bold">
+                  Upcoming Events
+                </h2>
+
+                {upcomingEvents.length === 0 ? (
+                  <EmptyState
+                    title="No upcoming events"
+                    description={
+                      isFiltered
+                        ? "No matching upcoming events were found."
+                        : "Check back soon."
+                    }
+                  />
+                ) : (
+                  <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-3">
+                    {upcomingEvents.map((event) => (
+                      <EventCard
+                        key={event.id}
+                        event={event}
                       />
-                    ) : (
-                      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-3">
-                        {upcomingEvents.map((event) => (
-                          <EventCard
-                            key={event.id}
-                            event={event}
-                          />
-                        ))}
-                      </div>
-                    )}
+                    ))}
                   </div>
+                )}
+              </div>
 
-                  {/* Past Events */}
-                  <div>
-                    <h2 className="mb-6 text-2xl font-bold">
-                      Past Events
-                    </h2>
+              {/* PAST EVENTS
+                  Only render this section when past matching
+                  events actually exist. */}
+              {pastEvents.length > 0 && (
+                <div>
+                  <h2 className="mb-6 text-2xl font-bold">
+                    Past Events
+                  </h2>
 
-                    {!pastEvents || pastEvents.length === 0 ? (
-                      <EmptyState
-                        title="No past events"
-                        description="Past events will appear here."
+                  <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-3">
+                    {pastEvents.map((event) => (
+                      <EventCard
+                        key={event.id}
+                        event={event}
                       />
-                    ) : (
-                      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-3">
-                        {pastEvents.map((event) => (
-                          <EventCard
-                            key={event.id}
-                            event={event}
-                          />
-                        ))}
-                      </div>
-                    )}
+                    ))}
                   </div>
-                </>
+                </div>
               )}
             </section>
           </div>
         </div>
       </main>
+
       <Footer />
     </div>
   );

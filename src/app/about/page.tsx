@@ -30,11 +30,16 @@ export default function AboutPage() {
             </p>
 
             <p>
-             The idea behind Techie Hub is my personal eis my personal experience
+              The idea behind Techie Hub is my personal experience
               while looking for different technology events happening in
               Karachi. The purpose of the project is to maximize the student
               involvement in different communities so that they would never
-              miss an opportunity to connect, network, and grow.
+              miss an opportunity to connect, network, and grow. The project is
+              in early stage hence focused on providing the core functionality. I am
+              consistantly working on enhancing the user experience. If anyone
+              has any suggestions on how to make it better, any feature suggestions
+              , anything, feel free to reach out, I am looking forward to hear from you.
+              Let's grow together, learn together and help the community flourish.
             </p>
           </div>
         </section>
