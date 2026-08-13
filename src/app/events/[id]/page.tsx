@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import type { Metadata } from "next";
 import Link from "next/link";
 import {
   Calendar,
@@ -13,6 +14,62 @@ import { createClient } from "@/lib/supabase/server";
 import ShareEvent from "@/components/events/ShareEvent";
 
 export const dynamic = "force-dynamic";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}): Promise<Metadata> {
+  const { id } = await params;
+
+  const supabase = await createClient();
+
+  const { data: event } = await supabase
+    .from("events")
+    .select("*")
+    .eq("id", id)
+    .single();
+
+  if (!event) {
+    return {
+      title: "Event | Techie Hub",
+      description: "Discover tech events in Karachi on Techie Hub.",
+    };
+  }
+
+  const description =
+  event.description.length > 160
+    ? `${event.description.slice(0, 157)}...`
+    : event.description;
+
+  return {
+    title: `${event.title} | Techie Hub`,
+    description,
+
+    openGraph: {
+      title: event.title,
+      description,
+      type: "website",
+      images: event.image_url
+        ? [
+            {
+              url: event.image_url,
+              width: 1200,
+              height: 630,
+              alt: event.title,
+            },
+          ]
+        : [],
+    },
+
+    twitter: {
+      card: "summary_large_image",
+      title: event.title,
+      description,
+      images: event.image_url ? [event.image_url] : [],
+    },
+  };
+}
 
 export default async function EventPage({
   params,
@@ -32,6 +89,7 @@ export default async function EventPage({
   if (error || !event) {
     notFound();
   }
+
 
   const date = new Date(event.event_date);
 
