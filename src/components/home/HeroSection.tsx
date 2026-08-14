@@ -145,12 +145,12 @@ export default function HeroSection({
 
         {/* Heading */}
         <h1 className="text-5xl font-extrabold tracking-tight text-gray-900 sm:text-6xl lg:text-7xl">
-          Discover the Next
+          Discover the Best
           <br className="hidden sm:block" />
 
           <span className="text-black">
             {" "}
-            Tech Event in Karachi
+            Tech Events in Karachi
           </span>
         </h1>
 
