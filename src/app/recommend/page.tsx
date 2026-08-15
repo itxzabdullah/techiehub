@@ -65,7 +65,7 @@ export default function RecommendPage() {
         </h1>
 
         <p className="mt-3 text-gray-600">
-          Tell us about your interests, and TechieHub AI will recommend the most relevant technology events in Karachi based on your preferences.
+          Tell us about your interests, and Techie Hub AI will recommend the most relevant technology events in Karachi based on your preferences.
         </p>
 
         <textarea
@@ -141,7 +141,7 @@ export default function RecommendPage() {
                 </h3>
 
                 <p className="mt-2 text-gray-500">
-                  Enter your interests and TechieHub AI will recommend the best
+                  Enter your interests and Techie Hub AI will recommend the best
                   events for you.
                 </p>
               </div>

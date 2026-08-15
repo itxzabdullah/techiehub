@@ -232,7 +232,7 @@ export default function ReviewSubmission({
                 Review Submission
             </h1>
             <p className="mt-2 text-gray-600">
-                Review the event before publishing it to TechieHub.
+                Review the event before publishing it to Techie Hub.
             </p>
             <div className="mt-8 rounded-2xl border bg-white p-8 shadow-sm">
                 <div className="grid gap-6 md:grid-cols-2">

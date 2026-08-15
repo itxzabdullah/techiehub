@@ -23,27 +23,24 @@ export default function AboutPage() {
                   discover and share tech-related events happening in Karachi. It
                   allows users to browse upcoming Hackathons, Workshops, Conferences,
                   Meetups, Startups, and more all in one place, with links to the official
-                  event sites. Users can also get AI powered personalized, event suggestions
-                  based on their interests. To submit an event, users can use the
-                  designated interface to enter event details. Once submitted, the
-                  events are then reviewed by admin and published to the site upon approval.
+                  event sites. Users can also get AI powered personalized, event recommendations
+                  based on their interests. Community leads and organizers or even common users can submit event through the
+                  designated interface. Submitted events are then reviewed and published to
+                  site by admin.
                 </p>
 
                 <p>
                   The idea behind Techie Hub is my personal experience
                   while looking for different technology events happening in
                   Karachi. The purpose of the project is to maximize student
-                  involvement in different communities so that they would never miss
-                  an opportunity to connect, network, and grow. The project is
-                  in its early stage hence focused on providing the
-                  core functionality. I am consistently working on enhancing
-                  the user experience.
+                  involvement in different communities so they never miss
+                  an opportunity to connect, network, and grow.
                 </p>
 
                 <p>
-                  If you have any suggestions, a feature idea, or anything else
-                  you'd like to share, feel free to reach out. I am looking
-                  forward to hearing from you. Let's grow together, learn
+                  The project is still in its early stage. While I am continuously working on enhancing
+                  the user experience, if anyone have any suggestions, feature ideas, or anything else
+                  you'd like to share, feel free to reach out. Let's grow together, learn
                   together, and help the community flourish.
                 </p>
               </div>

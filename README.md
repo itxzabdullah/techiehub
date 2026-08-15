@@ -1,10 +1,10 @@
-# TechieHub
+# Techie Hub
 
-TechieHub is a modern web application for discovering and sharing technology events in Karachi. It enables users to browse upcoming hackathons, workshops, conferences, AI events, meetups, startup events, and more. Organizers can securely submit new events through an authenticated admin interface, while users can search and filter events based on categories and keywords.
+Techie Hub is a modern web application for discovering and sharing technology events in Karachi. It enables users to browse upcoming hackathons, workshops, conferences, AI events, meetups, startup events, and more. Organizers can securely submit new events through an authenticated admin interface, while users can search and filter events based on categories and keywords.
 
 ## 🌐 Live Demo
 
-https://techiehub-ten.vercel.app
+https://techiehub-pk.vercel.app
 
 ---
 
@@ -16,7 +16,7 @@ The motivation behind this project is my personal experience while looking for d
 
 ## Target Audience
 
-TechieHub is designed for:
+Techie Hub is designed for:
 
 - University students
 - Software engineers
@@ -127,7 +127,7 @@ Logged-in users:
 
 # 🤖 AI Feature
 
-TechieHub includes an AI-powered recommendation system built using Google's Gemini API.
+Techie Hub includes an AI-powered recommendation system built using Google's Gemini API.
 
 Users enter their interests (for example: AI, cybersecurity, startups, web development), and the AI analyzes available events to recommend the most relevant ones.
 
@@ -145,7 +145,7 @@ This helps users quickly discover events aligned with their goals.
 The recommendation system sends the following prompt to the Gemini API:
 
 ```text
-You are TechieHub AI.
+You are Techie Hub AI.
 
 The user likes:
 ${interests}

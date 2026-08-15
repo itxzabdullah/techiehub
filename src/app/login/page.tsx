@@ -54,7 +54,7 @@ export default function LoginPage() {
         <h1 className="text-3xl font-bold">Admin Login</h1>
 
         <p className="mt-2 text-gray-500">
-          Sign in to manage TechieHub events.
+          Sign in to manage Techie Hub events.
         </p>
 
         <form onSubmit={handleLogin} className="mt-8 space-y-5">

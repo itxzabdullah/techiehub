@@ -38,7 +38,7 @@ if (error || profile?.role !== "admin") {
         </h1>
 
         <p className="mt-2 text-gray-600">
-          Review community submissions and publish events to TechieHub.
+          Review community submissions and publish events to Techie Hub.
         </p>
 
         <div className="mt-8 rounded-2xl border bg-white p-6 shadow-sm">
@@ -64,7 +64,7 @@ if (error || profile?.role !== "admin") {
             </h2>
 
             <p className="mt-2 text-gray-600">
-              Create and publish a new technology event for the TechieHub
+              Create and publish a new technology event for the Techie Hub
               community.
             </p>
           </Link>
@@ -79,7 +79,7 @@ if (error || profile?.role !== "admin") {
 
             <p className="mt-2 text-gray-600">
               Review community-submitted events before they appear on
-              TechieHub.
+              Techie Hub.
             </p>
           </Link>
         </div>

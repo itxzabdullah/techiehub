@@ -111,13 +111,13 @@ export async function POST(req: Request) {
     // --------------------------------------------------
 
     const prompt = `
-You are TechieHub AI, an event recommendation assistant.
+You are Techie Hub AI, an event recommendation assistant.
 
 The user is interested in:
 
 ${interests}
 
-Here are the upcoming events available on TechieHub:
+Here are the upcoming events available on Techie Hub:
 
 ${JSON.stringify(eventData)}
 

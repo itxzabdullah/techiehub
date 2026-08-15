@@ -234,7 +234,7 @@ export default function SubmitEventPage() {
 
       const successMessage = isAdmin
         ? "Event published successfully."
-        : "Your event has been submitted successfully.\n\nIt will be reviewed before appearing on TechieHub.";
+        : "Your event has been submitted successfully.\n\nIt will be reviewed before appearing on Techie Hub.";
 
       setSuccess(successMessage);
 

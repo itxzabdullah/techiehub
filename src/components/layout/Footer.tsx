@@ -58,7 +58,7 @@ export default function Footer() {
         {/* Bottom */}
         <div className="mt-8 border-t border-gray-100 pt-5">
           <p className="text-sm text-gray-400">
-            © {new Date().getFullYear()} TechieHub. All rights reserved.
+            © {new Date().getFullYear()} Techie Hub. All rights reserved.
           </p>
         </div>
 
