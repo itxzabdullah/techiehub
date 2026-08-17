@@ -1,6 +1,9 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
+@theme {
+  --color-gray-450: #9ca3af;
+}
 
 @custom-variant dark (&:is(.dark *));
 
