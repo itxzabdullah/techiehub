@@ -8,6 +8,7 @@ import CategorySection from "@/components/home/CategorySection";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import { createClient } from "@/lib/supabase/server";
+import type { Event } from "@/types/event";
 
 export default async function Home({
   searchParams,
@@ -25,9 +26,39 @@ export default async function Home({
 
   const supabaseServer = await createClient();
 
-  const {
-    data: { user },
-  } = await supabaseServer.auth.getUser();
+  const eventsPromise =
+    normalizedSearch || normalizedCategory
+      ? supabaseServer.rpc("search_events", {
+        search_query: normalizedSearch || null,
+        search_category: normalizedCategory || null,
+      })
+      : supabaseServer
+        .from("events")
+        .select("*")
+        .gte("event_date", now)
+        .order("event_date", { ascending: true })
+        .limit(6);
+
+  const authPromise = supabaseServer.auth.getUser();
+
+  const totalEventsPromise = supabaseServer
+    .from("events")
+    .select("*", {
+      count: "exact",
+      head: true,
+    });
+
+  const [
+    {
+      data: { user },
+    },
+    eventsResult,
+    { count: totalEvents },
+  ] = await Promise.all([
+    authPromise,
+    eventsPromise,
+    totalEventsPromise,
+  ]);
 
   let isAdmin = false;
 
@@ -41,50 +72,8 @@ export default async function Home({
     isAdmin = profile?.role === "admin";
   }
 
-  let events: any[] = [];
-  let error: any = null;
-
-  /*
-   * SEARCH
-   *
-   * Uses PostgreSQL pg_trgm through the
-   * search_events() Supabase RPC function.
-   *
-   * - Searches all events
-   * - Includes past and upcoming events
-   * - No result limit
-   * - Supports fuzzy/typo-tolerant matching
-   */
-  if (normalizedSearch || normalizedCategory) {
-    const result = await supabaseServer.rpc("search_events", {
-      search_query: normalizedSearch || null,
-      search_category: normalizedCategory || null,
-    });
-
-    events = result.data ?? [];
-    error = result.error;
-  } else {
-    const result = await supabaseServer
-      .from("events")
-      .select("*")
-      .gte("event_date", now)
-      .order("event_date", { ascending: true })
-      .limit(6);
-
-    events = result.data ?? [];
-    error = result.error;
-  }
-  /*
-   * Total number of events
-   *
-   * Used by the HeroSection statistics.
-   */
-  const { count: totalEvents } = await supabaseServer
-    .from("events")
-    .select("*", {
-      count: "exact",
-      head: true,
-    });
+  const events: Event[] = eventsResult.data ?? [];
+  const error = eventsResult.error;
 
   if (error) {
     return (
@@ -150,10 +139,11 @@ export default async function Home({
           {events.length > 0 ? (
             <>
               <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                {events.map((event) => (
+                {events.map((event, index) => (
                   <EventCard
                     key={event.id}
                     event={event}
+                    priority={index === 0}
                   />
                 ))}
               </div>

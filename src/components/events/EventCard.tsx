@@ -1,12 +1,14 @@
 import { Event } from "@/types/event";
 import { Calendar, MapPin, User, Tag, ArrowRight, Share2, ExternalLink } from "lucide-react";
 import ShareEvent from "@/components/events/ShareEvent";
+import Image from "next/image";
 
 interface EventCardProps {
   event: Event;
+  priority?: boolean;
 }
 
-export default function EventCard({ event }: EventCardProps) {
+export default function EventCard({ event, priority = false }: EventCardProps) {
   const date = new Date(event.event_date);
 
   const formattedDate =
@@ -41,11 +43,14 @@ export default function EventCard({ event }: EventCardProps) {
 
       {/* Image */}
       {event.image_url && (
-        <div className="h-60 w-full overflow-hidden">
-          <img
+        <div className="relative h-60 w-full overflow-hidden">
+          <Image
             src={event.image_url}
             alt={event.title}
-            className="h-full w-full object-cover object-center transition-transform duration-300 group-hover:scale-105"
+            fill
+            priority={priority}
+            sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+            className="object-cover object-center transition-transform duration-300 group-hover:scale-105"
           />
         </div>
       )}
