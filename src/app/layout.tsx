@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import { Analytics } from '@vercel/analytics/react';
-import { SpeedInsights } from "@vercel/speed-insights/next"
+import { Analytics } from "@vercel/analytics/react";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -16,9 +16,12 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://techiehub-pk.vercel.app"),
+
   title: "Techie Hub",
+
   description:
-    "Discover tech events in Karachi.",
+    "AI-powered event discovery platform for tech communities in Karachi.",
+
   icons: {
     icon: [
       { url: "/favicon-16x16.png", sizes: "16x16", type: "image/png" },
@@ -27,10 +30,30 @@ export const metadata: Metadata = {
     ],
     apple: "/apple-touch-icon.png",
   },
+
   openGraph: {
     title: "Techie Hub",
     description:
-      "AI powered event discovery platform for tech communities specifically in Karachi.",
+      "Discover tech events in Karachi with AI-powered recommendations.",
+    url: "https://techiehub-pk.vercel.app",
+    siteName: "Techie Hub",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Techie Hub - Discover, Connect, Grow",
+      },
+    ],
+    locale: "en_US",
+    type: "website",
+  },
+
+  twitter: {
+    card: "summary_large_image",
+    title: "Techie Hub",
+    description:
+      "Discover tech events in Karachi with AI-powered recommendations.",
     images: ["/og-image.png"],
   },
 };
@@ -45,7 +68,11 @@ export default function RootLayout({
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">{children} <Analytics /> <SpeedInsights /> </body>
+      <body className="min-h-full flex flex-col">
+        {children}
+        <Analytics />
+        <SpeedInsights />
+      </body>
     </html>
   );
 }
