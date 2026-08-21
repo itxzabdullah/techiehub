@@ -20,7 +20,7 @@ export const metadata: Metadata = {
   title: "Techie Hub",
 
   description:
-    "AI-powered event discovery platform for tech communities in Karachi.",
+    "AI-powered event discovery platform specifically for Tech-related Events happening in Karachi.",
 
   icons: {
     icon: [
@@ -34,7 +34,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Techie Hub",
     description:
-      "Discover tech events in Karachi with AI-powered recommendations.",
+      "Discover Hackathons, Workshops, Meetups, Conferences and many more, happening in Karachi, All in one place.",
     url: "https://techiehub-pk.vercel.app",
     siteName: "Techie Hub",
     images: [
@@ -53,7 +53,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Techie Hub",
     description:
-      "Discover tech events in Karachi with AI-powered recommendations.",
+      "Discover Hackathons, Workshops, Meetups, Conferences and many more, happening in Karachi, All in one place.",
     images: ["/og-image.png"],
   },
 };

@@ -1,5 +1,5 @@
 import { Event } from "@/types/event";
-import { Calendar, MapPin, User, Tag, ArrowRight, Share2, ExternalLink } from "lucide-react";
+import { Calendar, MapPin, User, Tag, ExternalLink } from "lucide-react";
 import ShareEvent from "@/components/events/ShareEvent";
 import Image from "next/image";
 
@@ -8,7 +8,10 @@ interface EventCardProps {
   priority?: boolean;
 }
 
-export default function EventCard({ event, priority = false }: EventCardProps) {
+export default function EventCard({
+  event,
+  priority = false,
+}: EventCardProps) {
   const date = new Date(event.event_date);
 
   const formattedDate =
@@ -39,11 +42,11 @@ export default function EventCard({ event, priority = false }: EventCardProps) {
   );
 
   return (
-    <div className="group flex h-[800px] flex-col overflow-hidden rounded-2xl border bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-lg">
+    <div className="group flex h-[840px] flex-col overflow-hidden rounded-2xl border bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-lg">
 
       {/* Image */}
       {event.image_url && (
-        <div className="relative h-60 w-full overflow-hidden">
+        <div className="relative h-60 min-h-60 w-full shrink-0 overflow-hidden">
           <Image
             src={event.image_url}
             alt={event.title}
@@ -55,21 +58,21 @@ export default function EventCard({ event, priority = false }: EventCardProps) {
         </div>
       )}
 
-      <div className="flex flex-1 flex-col p-6">
+      <div className="flex min-h-0 flex-1 flex-col p-6">
 
         {/* Category */}
-        <div className="mb-5 inline-flex w-fit rounded-full bg-blue-100 px-3 py-1 text-sm font-medium text-blue-700">
+        <div className="mb-5 inline-flex w-fit shrink-0 rounded-full bg-blue-100 px-3 py-1 text-sm font-medium text-blue-700">
           {event.category}
         </div>
 
         {/* Title */}
-        <h2 className="mb-4 line-clamp-2 text-2xl font-bold leading-tight text-gray-900">
+        <h2 className="mb-4 line-clamp-2 shrink-0 text-2xl font-bold leading-tight text-gray-900">
           {event.title}
         </h2>
 
         {/* Description */}
-        <div className="relative h-[170px] overflow-hidden">
-          <p className="line-clamp-6 leading-7 text-gray-600">
+        <div className="relative min-h-0 flex-1 overflow-hidden">
+          <p className="leading-7 text-gray-600">
             {event.description}
           </p>
 
@@ -80,8 +83,9 @@ export default function EventCard({ event, priority = false }: EventCardProps) {
         <div className="mt-6 flex-none">
 
           {/* Tags */}
+          {/* Tags */}
           {visibleTags.length > 0 && (
-            <div className="mb-5 h-16 overflow-hidden">
+            <div className="mb-5">
               <div className="flex flex-wrap gap-2">
                 {visibleTags.map((tag) => (
                   <span
@@ -101,12 +105,19 @@ export default function EventCard({ event, priority = false }: EventCardProps) {
             </div>
           )}
 
+
+
+
+
+
           {/* Details */}
           <div className="space-y-3 text-sm text-gray-700">
 
             <div className="flex items-center gap-2">
               <Calendar className="h-4 w-4 shrink-0" />
-              <span>{formattedDate}</span>
+              <span className="whitespace-nowrap">
+                {formattedDate}
+              </span>
             </div>
 
             <div className="flex items-center gap-2">
@@ -131,6 +142,8 @@ export default function EventCard({ event, priority = false }: EventCardProps) {
             </div>
 
           </div>
+
+          {/* Actions */}
           <div className="mt-5 border-t pt-3">
             <div className="mx-auto flex w-full max-w-sm items-center justify-between px-2">
 
@@ -155,6 +168,7 @@ export default function EventCard({ event, priority = false }: EventCardProps) {
 
             </div>
           </div>
+
         </div>
       </div>
     </div>

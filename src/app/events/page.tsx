@@ -170,14 +170,16 @@ export default async function ExplorePage({
         {/* Main content */}
         <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
           <div className="flex flex-col gap-8 md:flex-row">
-            {/* Sidebar */}
-            <aside className="w-full flex-shrink-0 space-y-8 md:w-48 lg:w-52">
+
+            {/* Desktop Sidebar */}
+            <aside className="hidden w-full flex-shrink-0 space-y-8 md:block md:w-48 lg:w-52">
               <div>
                 <h3 className="text-sm font-semibold text-gray-900">
                   Categories
                 </h3>
 
                 <div className="mt-4 flex flex-col items-start gap-1.5">
+                  {/* All */}
                   <Link
                     href={
                       normalizedSearch
@@ -185,8 +187,8 @@ export default async function ExplorePage({
                         : "/events"
                     }
                     className={`inline-flex w-fit max-w-full rounded-lg px-3 py-2 text-sm transition ${!normalizedCategory
-                        ? "bg-black text-white"
-                        : "text-gray-700 hover:bg-gray-100"
+                      ? "bg-black text-white"
+                      : "text-gray-700 hover:bg-gray-100"
                       }`}
                   >
                     All
@@ -207,8 +209,8 @@ export default async function ExplorePage({
                         href={`/events?${params.toString()}`}
                         scroll={false}
                         className={`inline-flex w-fit max-w-full rounded-lg px-3 py-2 text-sm transition ${normalizedCategory.toLowerCase() === item.toLowerCase()
-                            ? "bg-black text-white"
-                            : "text-gray-700 hover:bg-gray-100"
+                          ? "bg-black text-white"
+                          : "text-gray-700 hover:bg-gray-100"
                           }`}
                       >
                         {item}
@@ -221,6 +223,51 @@ export default async function ExplorePage({
 
             {/* Events */}
             <section className="flex-1 space-y-12">
+
+              {/* Mobile Categories */}
+              <div className="md:hidden">
+                <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+                  {/* All */}
+                  <Link
+                    href={
+                      normalizedSearch
+                        ? `/events?search=${encodeURIComponent(normalizedSearch)}`
+                        : "/events"
+                    }
+                    scroll={false}
+                    className={`shrink-0 rounded-full px-4 py-2 text-sm font-medium transition ${!normalizedCategory
+                        ? "bg-black text-white"
+                        : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                      }`}
+                  >
+                    All
+                  </Link>
+
+                  {CATEGORIES.slice(1).map((item) => {
+                    const params = new URLSearchParams();
+
+                    params.set("category", item);
+
+                    if (normalizedSearch) {
+                      params.set("search", normalizedSearch);
+                    }
+
+                    return (
+                      <Link
+                        key={item}
+                        href={`/events?${params.toString()}`}
+                        scroll={false}
+                        className={`shrink-0 rounded-full px-4 py-2 text-sm font-medium transition ${normalizedCategory.toLowerCase() === item.toLowerCase()
+                            ? "bg-black text-white"
+                            : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                          }`}
+                      >
+                        {item}
+                      </Link>
+                    );
+                  })}
+                </div>
+              </div>
               {/* Filter/Search heading */}
               {isFiltered && (
                 <div>
