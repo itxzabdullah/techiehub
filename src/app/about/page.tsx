@@ -1,3 +1,4 @@
+import SubscriptionForm from "@/components/about/SubscriptionForm";
 import Navbar from "@/components/layout/Navbar";
 import {
   FaLinkedinIn,
@@ -52,10 +53,6 @@ export default function AboutPage() {
             {/* Divider */}
             <div className="my-10 border-t border-gray-200" />
 
-
-
-
-
             {/* Connect */}
             <div className="text-center">
               <h2 className="text-2xl font-bold tracking-tight text-gray-900">
@@ -63,7 +60,13 @@ export default function AboutPage() {
               </h2>
 
               <p className="mx-auto mt-2 max-w-xl text-gray-600">
-                Connect with Techie Hub to stay updated.
+                Get notified whenever a new tech event is published on Techie Hub.
+              </p>
+
+              {/* Subscription Form */}
+              <SubscriptionForm />
+              <p className="mx-auto mt-7 max-w-xl text-gray-600">
+                Connect with Techie Hub
               </p>
               <div className="mt-5 mb-3 flex items-center justify-center gap-4">
                 <a
