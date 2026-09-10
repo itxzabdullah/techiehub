@@ -108,6 +108,7 @@ export default async function Home({
         isAdmin={isAdmin}
         totalEvents={totalEvents ?? 0}
         category={normalizedCategory}
+        search={normalizedSearch}
       />
 
       <CategorySection

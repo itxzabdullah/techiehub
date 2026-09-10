@@ -1,7 +1,4 @@
-"use client";
-
 import Link from "next/link";
-import { usePathname } from "next/navigation";
 
 interface CategorySectionProps {
   categories: string[];
@@ -14,8 +11,6 @@ export default function CategorySection({
   search,
   category,
 }: CategorySectionProps) {
-  const pathname = usePathname();
-
   const allCategories = ["All", ...categories];
 
   return (
@@ -32,21 +27,17 @@ export default function CategorySection({
 
               const params = new URLSearchParams();
 
-              // Preserve search when changing category
               if (search?.trim()) {
                 params.set("search", search.trim());
               }
 
-              // "All" means no category filter
               if (!isAll) {
                 params.set("category", item);
               }
 
               const query = params.toString();
 
-              const href = query
-                ? `${pathname}?${query}`
-                : pathname;
+              const href = query ? `/?${query}` : "/";
 
               const isActive = isAll
                 ? !category
