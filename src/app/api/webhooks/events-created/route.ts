@@ -69,7 +69,6 @@ export async function POST(request: NextRequest) {
       event_date: event.event_date,
       location: event.location,
       organizer: event.organizer,
-      registration_link: event.registration_link ?? null,
       image_url: event.image_url ?? null,
     });
 

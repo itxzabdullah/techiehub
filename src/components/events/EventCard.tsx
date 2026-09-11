@@ -42,7 +42,7 @@ export default function EventCard({
   );
 
   return (
-    <div className="group flex h-[840px] flex-col overflow-hidden rounded-2xl border bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-lg">
+    <div className="group flex h-[840px] min-w-0 flex-col overflow-hidden rounded-2xl border bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-lg">
 
       {/* Image */}
       {event.image_url && (
@@ -58,7 +58,7 @@ export default function EventCard({
         </div>
       )}
 
-      <div className="flex min-h-0 flex-1 flex-col p-6">
+      <div className="flex min-h-0 min-w-0 flex-1 flex-col p-6">
 
         {/* Category */}
         <div className="mb-5 inline-flex w-fit shrink-0 rounded-full bg-blue-100 px-3 py-1 text-sm font-medium text-blue-700">
@@ -66,13 +66,13 @@ export default function EventCard({
         </div>
 
         {/* Title */}
-        <h2 className="mb-4 line-clamp-2 shrink-0 text-2xl font-bold leading-tight text-gray-900">
+        <h2 className="mb-4 line-clamp-2 shrink-0 break-words text-2xl font-bold leading-tight text-gray-900">
           {event.title}
         </h2>
 
         {/* Description */}
         <div className="relative min-h-0 flex-1 overflow-hidden">
-          <p className="leading-7 text-gray-600">
+          <p className="break-words leading-7 text-gray-600">
             {event.description}
           </p>
 
@@ -90,7 +90,7 @@ export default function EventCard({
                 {visibleTags.map((tag) => (
                   <span
                     key={tag}
-                    className="whitespace-nowrap rounded-full bg-gray-100 px-3 py-1 text-xs font-medium text-gray-700"
+                    className="max-w-full truncate rounded-full bg-gray-100 px-3 py-1 text-xs font-medium text-gray-700"
                   >
                     #{tag}
                   </span>

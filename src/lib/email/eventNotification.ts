@@ -32,7 +32,6 @@ type EventData = {
   event_date: string;
   location: string;
   organizer: string;
-  registration_link?: string | null;
   image_url?: string | null;
 };
 
@@ -105,8 +104,6 @@ Category: ${formattedCategory}
 Date: ${formattedDate}
 Location: ${event.location}
 Organizer: ${event.organizer}
-
-${event.registration_link ? `Register: ${event.registration_link}\n` : ""}
 
 View Event:
 ${eventUrl}
@@ -243,9 +240,8 @@ Discord: ${SOCIAL_LINKS.discord}
 
         <!-- Event Image -->
 
-        ${
-          event.image_url
-            ? `
+        ${event.image_url
+      ? `
               <img
                 src="${escapeHtml(event.image_url)}"
                 alt="${escapeHtml(event.title)}"
@@ -263,8 +259,8 @@ Discord: ${SOCIAL_LINKS.discord}
                 "
               />
             `
-            : ""
-        }
+      : ""
+    }
 
 
         <!-- Event Details -->
@@ -367,53 +363,28 @@ Discord: ${SOCIAL_LINKS.discord}
         </div>
 
 
-        <!-- Buttons -->
+        <!-- View Event Button -->
 
-        <div style="text-align: center; margin-bottom: 28px;">
+<div style="text-align: center; margin-bottom: 28px;">
 
-          <a
-            href="${escapeHtml(eventUrl)}"
-            target="_blank"
-            style="
-              display: inline-block;
-              padding: 12px 24px;
-              background-color: #111111;
-              color: #ffffff;
-              text-decoration: none;
-              border-radius: 8px;
-              font-size: 14px;
-              font-weight: 600;
-            "
-          >
-            View Event
-          </a>
+  <a
+    href="${escapeHtml(eventUrl)}"
+    target="_blank"
+    style="
+      display: inline-block;
+      padding: 12px 24px;
+      background-color: #111111;
+      color: #ffffff;
+      text-decoration: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+    "
+  >
+    View Event
+  </a>
 
-          ${
-            event.registration_link
-              ? `
-                <a
-                  href="${escapeHtml(event.registration_link)}"
-                  target="_blank"
-                  style="
-                    display: inline-block;
-                    margin-left: 8px;
-                    padding: 12px 24px;
-                    background-color: #f3f4f6;
-                    color: #111111;
-                    text-decoration: none;
-                    border-radius: 8px;
-                    font-size: 14px;
-                    font-weight: 600;
-                  "
-                >
-                  Register
-                </a>
-              `
-              : ""
-          }
-
-        </div>
-
+</div>
       </div>
 
 

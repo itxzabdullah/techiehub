@@ -118,7 +118,7 @@ export default async function Home({
         category={normalizedCategory}
       />
 
-      <main className="mx-auto max-w-7xl px-4 pt-6 pb-16 sm:px-6 lg:px-8">
+      <main className="mx-auto max-w-7xl px-4 pt-6 pb-10 sm:px-6 lg:px-8">
         <section id="events-results" className="scroll-mt-6">
           <div className="mb-6">
             <h2 className="text-3xl font-bold tracking-tight">
@@ -182,7 +182,7 @@ export default async function Home({
           )}
         </section>
         {!isAdmin && (
-          <section className="mt-20">
+          <section className="mt-12">
             <div className="mx-auto max-w-6xl rounded-3xl border border-gray-200 bg-gradient-to-br from-white to-gray-50 px-6 py-10 text-center shadow-sm sm:px-10 md:px-16 md:py-12">
               <div className="mx-auto max-w-3xl">
                 <h2 className="text-2xl font-bold tracking-tight text-gray-900 md:text-3xl">

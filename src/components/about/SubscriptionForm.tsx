@@ -40,7 +40,7 @@ export default function SubscriptionForm() {
     <>
       <form
         onSubmit={handleSubmit}
-        className="mx-auto mt-6 flex max-w-2xl items-center gap-2"
+        className="mx-auto mt-5 flex w-full max-w-lg flex-row items-center gap-2"
       >
         <input
           type="email"
@@ -49,15 +49,15 @@ export default function SubscriptionForm() {
           placeholder="Enter your email address"
           required
           disabled={loading}
-          className="h-12 min-w-0 flex-1 rounded-full border border-gray-200 bg-white px-5 text-sm text-gray-900 outline-none transition placeholder:text-gray-400 focus:border-gray-400 disabled:opacity-60"
+          className="h-10 sm:h-12 min-w-0 flex-1 rounded-full border border-gray-200 px-3 text-xs sm:text-sm text-gray-900 outline-none transition placeholder:text-gray-400 focus:border-gray-400 disabled:opacity-60 sm:px-5"
         />
 
         <button
           type="submit"
           disabled={loading}
-          className="h-12 shrink-0 rounded-full bg-black px-6 text-sm font-medium text-white transition hover:bg-gray-800 disabled:cursor-not-allowed disabled:opacity-60"
+          className="h-10 sm:h-12 shrink-0 rounded-full bg-black px-3 text-xs sm:text-sm font-medium text-white transition hover:opacity-80 disabled:cursor-not-allowed disabled:opacity-60 sm:px-6"
         >
-          {loading ? "Subscribing..." : "Subscribe"}
+          {loading ? "..." : "Subscribe"}
         </button>
       </form>
 
