@@ -1,9 +1,40 @@
 import { NextResponse } from "next/server";
 import { notifySubscribers } from "@/lib/email/eventNotification";
 
+type EventOperation = "INSERT" | "UPDATE";
+
 export async function POST(request: Request) {
   try {
-    const event = await request.json();
+    // ---------------------------------------------------------
+    // Read Supabase webhook payload
+    // ---------------------------------------------------------
+
+    const payload = await request.json();
+
+    const operation = payload.type as EventOperation;
+    const event = payload.record;
+
+    // ---------------------------------------------------------
+    // Validate operation
+    // ---------------------------------------------------------
+
+    if (operation !== "INSERT" && operation !== "UPDATE") {
+      return NextResponse.json(
+        { error: "Unsupported webhook operation." },
+        { status: 400 }
+      );
+    }
+
+    // ---------------------------------------------------------
+    // Validate event record
+    // ---------------------------------------------------------
+
+    if (!event) {
+      return NextResponse.json(
+        { error: "No event record found." },
+        { status: 400 }
+      );
+    }
 
     if (
       !event.id ||
@@ -19,25 +50,43 @@ export async function POST(request: Request) {
       );
     }
 
-    const result = await notifySubscribers({
-      id: event.id,
-      title: event.title,
-      category: event.category,
-      event_date: event.event_date,
-      location: event.location,
-      organizer: event.organizer,
-      image_url: event.image_url ?? null,
-    });
+    // ---------------------------------------------------------
+    // Send notifications
+    // ---------------------------------------------------------
+
+    const result = await notifySubscribers(
+      {
+        id: event.id,
+        title: event.title,
+        category: event.category,
+        event_date: event.event_date,
+        location: event.location,
+        organizer: event.organizer,
+        image_url: event.image_url ?? null,
+      },
+      operation
+    );
+
+    console.log(
+      `Event ${operation} notification completed: ` +
+        `${result.sent} sent, ${result.failed} failed.`
+    );
+
+    // ---------------------------------------------------------
+    // Response
+    // ---------------------------------------------------------
 
     return NextResponse.json({
-      message: `Notifications sent to ${result.sent} subscriber${
-        result.sent === 1 ? "" : "s"
-      }.`,
+      success: true,
+      operation,
+      message: `${operation === "INSERT" ? "New event" : "Event update"} notifications sent to ${
+        result.sent
+      } subscriber${result.sent === 1 ? "" : "s"}.`,
       sent: result.sent,
       failed: result.failed,
     });
   } catch (error) {
-    console.error("Notification error:", error);
+    console.error("Event notification webhook error:", error);
 
     return NextResponse.json(
       {

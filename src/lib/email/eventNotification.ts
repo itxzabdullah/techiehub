@@ -3,6 +3,8 @@ import "server-only";
 import nodemailer from "nodemailer";
 import { createClient } from "@supabase/supabase-js";
 
+type EventOperation = "INSERT" | "UPDATE";
+
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY!
@@ -60,7 +62,10 @@ function formatEventDate(date: string) {
   }).format(new Date(date));
 }
 
-export async function notifySubscribers(event: EventData) {
+export async function notifySubscribers(
+  event: EventData,
+  operation: EventOperation
+) {
   // ---------------------------------------------------------
   // Get active subscribers
   // ---------------------------------------------------------
@@ -91,12 +96,22 @@ export async function notifySubscribers(event: EventData) {
 
   const eventUrl = `${SITE_URL}/events/${event.id}`;
 
+  const isUpdate = operation === "UPDATE";
+
+  const emailHeading = isUpdate
+    ? "An event on Techie Hub has been updated."
+    : "A new tech event has been added to Techie Hub.";
+
+  const emailSubject = isUpdate
+    ? `Event Updated: ${event.title}`
+    : `New Tech Event: ${event.title}`;
+
   // ---------------------------------------------------------
   // Plain-text email
   // ---------------------------------------------------------
 
   const text = `
-A new tech event has been added to Techie Hub.
+${emailHeading}
 
 ${event.title}
 
@@ -133,7 +148,7 @@ Discord: ${SOCIAL_LINKS.discord}
     name="viewport"
     content="width=device-width, initial-scale=1.0"
   />
-  <title>New Event - Techie Hub</title>
+  <title>${escapeHtml(emailSubject)}</title>
 </head>
 
 <body
@@ -204,7 +219,18 @@ Discord: ${SOCIAL_LINKS.discord}
 
       <!-- Content -->
 
-      <div style="padding: 32px;">
+      <!-- Notification heading -->
+
+<div
+  style="
+    margin-bottom: 20px;
+    font-size: 15px;
+    line-height: 1.5;
+    color: #4b5563;
+  "
+>
+  ${escapeHtml(emailHeading)}
+</div>
 
         <!-- Category -->
 
@@ -595,14 +621,14 @@ Discord: ${SOCIAL_LINKS.discord}
   // ---------------------------------------------------------
 
   const emailPromises = subscribers.map((subscriber) =>
-    transporter.sendMail({
-      from: `"Techie Hub" <${process.env.GMAIL_USER}>`,
-      to: subscriber.email,
-      subject: `New Tech Event: ${event.title}`,
-      text,
-      html,
-    })
-  );
+  transporter.sendMail({
+    from: `"Techie Hub" <${process.env.GMAIL_USER}>`,
+    to: subscriber.email,
+    subject: emailSubject,
+    text,
+    html,
+  })
+);
 
   const results = await Promise.allSettled(emailPromises);
 

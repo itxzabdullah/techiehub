@@ -1,37 +1,53 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { notifySubscribers } from "@/lib/email/eventNotification";
 
-export async function POST(request: NextRequest) {
+type EventOperation = "INSERT" | "UPDATE";
+
+const NOTIFICATION_FIELDS = [
+  "title",
+  "category",
+  "event_date",
+  "location",
+  "organizer",
+  "registration_link",
+  "image_url",
+] as const;
+
+function hasMeaningfulChange(
+  oldRecord: Record<string, unknown>,
+  newRecord: Record<string, unknown>
+) {
+  return NOTIFICATION_FIELDS.some(
+    (field) => oldRecord[field] !== newRecord[field]
+  );
+}
+
+export async function POST(request: Request) {
   try {
-    // ---------------------------------------------------------
-    // Verify webhook secret
-    // ---------------------------------------------------------
-
-    const webhookSecret = request.headers.get("x-webhook-secret");
-
-    if (!process.env.EVENT_WEBHOOK_SECRET) {
-      console.error("WEBHOOK_SECRET is not configured.");
-
-      return NextResponse.json(
-        { error: "Webhook secret is not configured." },
-        { status: 500 }
-      );
-    }
-
-    if (webhookSecret !== process.env.EVENT_WEBHOOK_SECRET) {
-      return NextResponse.json(
-        { error: "Unauthorized." },
-        { status: 401 }
-      );
-    }
-
     // ---------------------------------------------------------
     // Read Supabase webhook payload
     // ---------------------------------------------------------
 
     const payload = await request.json();
 
+    const operation = payload.type as EventOperation;
     const event = payload.record;
+    const oldRecord = payload.old_record;
+
+    // ---------------------------------------------------------
+    // Validate operation
+    // ---------------------------------------------------------
+
+    if (operation !== "INSERT" && operation !== "UPDATE") {
+      return NextResponse.json(
+        { error: "Unsupported webhook operation." },
+        { status: 400 }
+      );
+    }
+
+    // ---------------------------------------------------------
+    // Validate event record
+    // ---------------------------------------------------------
 
     if (!event) {
       return NextResponse.json(
@@ -39,10 +55,6 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       );
     }
-
-    // ---------------------------------------------------------
-    // Validate required event data
-    // ---------------------------------------------------------
 
     if (
       !event.id ||
@@ -59,28 +71,99 @@ export async function POST(request: NextRequest) {
     }
 
     // ---------------------------------------------------------
-    // Send notifications
+    // INSERT
     // ---------------------------------------------------------
 
-    const result = await notifySubscribers({
-      id: event.id,
-      title: event.title,
-      category: event.category,
-      event_date: event.event_date,
-      location: event.location,
-      organizer: event.organizer,
-      image_url: event.image_url ?? null,
-    });
+    if (operation === "INSERT") {
+      const result = await notifySubscribers(
+        {
+          id: event.id,
+          title: event.title,
+          category: event.category,
+          event_date: event.event_date,
+          location: event.location,
+          organizer: event.organizer,
+          image_url: event.image_url ?? null,
+        },
+        "INSERT"
+      );
+
+      console.log(
+        `New event notification completed: ` +
+          `${result.sent} sent, ${result.failed} failed.`
+      );
+
+      return NextResponse.json({
+        success: true,
+        operation: "INSERT",
+        notified: true,
+        sent: result.sent,
+        failed: result.failed,
+      });
+    }
+
+    // ---------------------------------------------------------
+    // UPDATE
+    // ---------------------------------------------------------
+
+    if (!oldRecord) {
+      return NextResponse.json(
+        { error: "Previous event record not found." },
+        { status: 400 }
+      );
+    }
+
+    // ---------------------------------------------------------
+    // Check whether a meaningful field changed
+    // ---------------------------------------------------------
+
+    const meaningfulChange = hasMeaningfulChange(
+      oldRecord,
+      event
+    );
+
+    if (!meaningfulChange) {
+      console.log(
+        `Event ${event.id} was updated, but no notification-relevant ` +
+          `fields changed. No email sent.`
+      );
+
+      return NextResponse.json({
+        success: true,
+        operation: "UPDATE",
+        notified: false,
+        message: "No meaningful event changes detected. No emails sent.",
+        sent: 0,
+        failed: 0,
+      });
+    }
+
+    // ---------------------------------------------------------
+    // Send update notifications
+    // ---------------------------------------------------------
+
+    const result = await notifySubscribers(
+      {
+        id: event.id,
+        title: event.title,
+        category: event.category,
+        event_date: event.event_date,
+        location: event.location,
+        organizer: event.organizer,
+        image_url: event.image_url ?? null,
+      },
+      "UPDATE"
+    );
 
     console.log(
-      `Event notification completed: ${result.sent} sent, ${result.failed} failed.`
+      `Event update notification completed: ` +
+        `${result.sent} sent, ${result.failed} failed.`
     );
 
     return NextResponse.json({
       success: true,
-      message: `Notifications sent to ${result.sent} subscriber${
-        result.sent === 1 ? "" : "s"
-      }.`,
+      operation: "UPDATE",
+      notified: true,
       sent: result.sent,
       failed: result.failed,
     });
@@ -92,7 +175,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(
       {
-        error: "Failed to send event notifications.",
+        error: "Failed to send subscriber notifications.",
       },
       { status: 500 }
     );
