@@ -1,4 +1,3 @@
-import SubscriptionForm from "@/components/about/SubscriptionForm";
 import Navbar from "@/components/layout/Navbar";
 import {
   FaLinkedinIn,
@@ -56,18 +55,13 @@ export default function AboutPage() {
             {/* Connect */}
             <div className="text-center">
               <h2 className="text-2xl font-bold tracking-tight text-gray-900">
-                Never miss an update.
+                Connect with Techie Hub
               </h2>
 
               <p className="mx-auto mt-2 max-w-xl text-gray-600">
-                Get notified whenever a new tech event is published on Techie Hub.
+                Follow Techie Hub for the latest tech events, updates, and announcements.
               </p>
 
-              {/* Subscription Form */}
-              <SubscriptionForm />
-              <p className="mx-auto mt-7 max-w-xl text-gray-600">
-                Connect with Techie Hub
-              </p>
               <div className="mt-5 mb-3 flex items-center justify-center gap-4">
                 <a
                   href="https://www.linkedin.com/company/techiehub-pk"

@@ -1,4 +1,5 @@
 export const dynamic = "force-dynamic";
+import SubscriptionForm from "@/components/about/SubscriptionForm";
 
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
@@ -154,7 +155,7 @@ export default async function Home({
                 <div className="mt-10 flex justify-center">
                   <Link
                     href="/events"
-                    className="inline-flex items-center gap-2 text-sm font-medium text-black transition-all hover:gap-3"
+                    className="inline-flex items-center gap-2 rounded-full border border-gray-200 bg-white px-6 py-3 text-sm font-medium text-gray-900 transition-all hover:border-gray-300 hover:bg-gray-50 hover:gap-3"
                   >
                     View all events
                     <ArrowRight className="h-4 w-4" />
@@ -180,31 +181,24 @@ export default async function Home({
             </div>
           )}
         </section>
-
         {!isAdmin && (
           <section className="mt-20">
-            <div className="max-w-2xl rounded-3xl border border-gray-200 bg-gradient-to-br from-white to-gray-50 p-8 shadow-sm md:p-10">
-              <div className="max-w-2xl">
+            <div className="mx-auto max-w-6xl rounded-3xl border border-gray-200 bg-gradient-to-br from-white to-gray-50 px-6 py-10 text-center shadow-sm sm:px-10 md:px-16 md:py-12">
+              <div className="mx-auto max-w-3xl">
                 <h2 className="text-2xl font-bold tracking-tight text-gray-900 md:text-3xl">
-                  Know about a tech event?
+                  Never miss a tech event in Karachi.
                 </h2>
 
-                <p className="mt-3 text-lg text-gray-600">
-                  Submit here and contribute to the growth of Karachi's tech community.
+                <p className="mt-3 text-gray-600">
+                  Subscribe to get notified when new tech events are added to Techie Hub.
                 </p>
 
-                <Link
-                  href="/submit-event"
-                  className="mt-6 inline-flex items-center rounded-xl bg-black px-5 py-3 text-sm font-semibold text-white transition-colors duration-200 hover:bg-gray-800"
-                >
-                  Submit Event
-                </Link>
+                <SubscriptionForm />
               </div>
             </div>
           </section>
         )}
       </main>
-
       <Footer />
     </>
   );

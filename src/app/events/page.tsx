@@ -40,6 +40,21 @@ export default async function ExplorePage({
 
   const now = new Date().toISOString();
   const supabase = await createClient();
+  let isAdmin = false;
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (user) {
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("role")
+      .eq("id", user.id)
+      .single();
+
+    isAdmin = profile?.role === "admin";
+  }
 
   let upcomingEvents: any[] = [];
   let pastEvents: any[] = [];
@@ -236,8 +251,8 @@ export default async function ExplorePage({
                     }
                     scroll={false}
                     className={`shrink-0 rounded-full px-4 py-2 text-sm font-medium transition ${!normalizedCategory
-                        ? "bg-black text-white"
-                        : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                      ? "bg-black text-white"
+                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                       }`}
                   >
                     All
@@ -258,8 +273,8 @@ export default async function ExplorePage({
                         href={`/events?${params.toString()}`}
                         scroll={false}
                         className={`shrink-0 rounded-full px-4 py-2 text-sm font-medium transition ${normalizedCategory.toLowerCase() === item.toLowerCase()
-                            ? "bg-black text-white"
-                            : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                          ? "bg-black text-white"
+                          : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                           }`}
                       >
                         {item}
@@ -333,6 +348,27 @@ export default async function ExplorePage({
                         event={event}
                       />
                     ))}
+                  </div>
+                </div>
+              )}
+              {/* Submit Event CTA */}
+              {!isAdmin && (
+                <div className="border-t border-gray-200 pt-16 pb-8">
+                  <div className="mx-auto max-w-3xl rounded-3xl border border-gray-200 bg-gradient-to-br from-white to-gray-50 p-8 text-center shadow-sm md:p-10">
+                    <h2 className="text-2xl font-bold tracking-tight text-gray-900 md:text-3xl">
+                      Know about a tech event?
+                    </h2>
+
+                    <p className="mt-3 text-gray-600">
+                      Submit here and contribute to the growth of Karachi's tech community.
+                    </p>
+
+                    <Link
+                      href="/submit-event"
+                      className="mt-6 inline-flex items-center rounded-full bg-black px-6 py-3 text-sm font-medium text-white transition hover:opacity-80"
+                    >
+                      Submit Event
+                    </Link>
                   </div>
                 </div>
               )}
