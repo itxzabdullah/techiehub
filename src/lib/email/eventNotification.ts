@@ -4,6 +4,11 @@ import nodemailer from "nodemailer";
 import { createClient } from "@supabase/supabase-js";
 
 type EventOperation = "INSERT" | "UPDATE";
+type ChangedField =
+  | "title"
+  | "event_date"
+  | "location"
+  | "registration_link";
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -64,7 +69,8 @@ function formatEventDate(date: string) {
 
 export async function notifySubscribers(
   event: EventData,
-  operation: EventOperation
+  operation: EventOperation,
+  changedFields: ChangedField[] = []
 ) {
   // ---------------------------------------------------------
   // Get active subscribers
@@ -92,6 +98,12 @@ export async function notifySubscribers(
   // ---------------------------------------------------------
 
   const formattedDate = formatEventDate(event.event_date);
+  const CHANGE_LABELS: Record<ChangedField, string> = {
+  title: "Event title",
+  event_date: "Date and time",
+  location: "Location",
+  registration_link: "Registration information",
+};
   const formattedCategory = formatCategory(event.category);
 
   const eventUrl = `${SITE_URL}/events/${event.id}`;
@@ -105,6 +117,13 @@ export async function notifySubscribers(
   const emailSubject = isUpdate
     ? `Event Updated: ${event.title}`
     : `New Tech Event: ${event.title}`;
+
+  const changedFieldsText =
+  isUpdate && changedFields.length > 0
+    ? `What changed:\n${changedFields
+        .map((field) => `• ${CHANGE_LABELS[field]}`)
+        .join("\n")}\n`
+    : "";
 
   // ---------------------------------------------------------
   // Plain-text email
@@ -120,6 +139,7 @@ Date: ${formattedDate}
 Location: ${event.location}
 Organizer: ${event.organizer}
 
+${changedFieldsText}
 View Event:
 ${eventUrl}
 
@@ -230,6 +250,49 @@ Discord: ${SOCIAL_LINKS.discord}
   "
 >
   ${escapeHtml(emailHeading)}
+  ${
+  isUpdate && changedFields.length > 0
+    ? `
+      <div
+        style="
+          margin-bottom: 20px;
+          padding: 16px;
+          background-color: #f9fafb;
+          border: 1px solid #e5e7eb;
+          border-radius: 12px;
+        "
+      >
+        <div
+          style="
+            margin-bottom: 8px;
+            font-size: 13px;
+            font-weight: 700;
+            color: #111827;
+          "
+        >
+          What changed
+        </div>
+
+        <ul
+          style="
+            margin: 0;
+            padding-left: 20px;
+            color: #4b5563;
+            font-size: 14px;
+            line-height: 1.6;
+          "
+        >
+          ${changedFields
+            .map(
+              (field) =>
+                `<li>${escapeHtml(CHANGE_LABELS[field])}</li>`
+            )
+            .join("")}
+        </ul>
+      </div>
+    `
+    : ""
+}
 </div>
 
         <!-- Category -->

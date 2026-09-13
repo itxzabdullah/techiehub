@@ -5,25 +5,37 @@ type EventOperation = "INSERT" | "UPDATE";
 
 const NOTIFICATION_FIELDS = [
   "title",
-  "category",
   "event_date",
   "location",
-  "organizer",
   "registration_link",
-  "image_url",
 ] as const;
 
-function hasMeaningfulChange(
-  oldRecord: Record<string, unknown>,
-  newRecord: Record<string, unknown>
-) {
-  return NOTIFICATION_FIELDS.some(
-    (field) => oldRecord[field] !== newRecord[field]
-  );
-}
+
 
 export async function POST(request: Request) {
   try {
+    // ---------------------------------------------------------
+    // Verify webhook secret
+    // ---------------------------------------------------------
+
+    const webhookSecret = request.headers.get("x-webhook-secret");
+
+    if (!process.env.EVENT_WEBHOOK_SECRET) {
+      console.error("EVENT_WEBHOOK_SECRET is not configured.");
+
+      return NextResponse.json(
+        { error: "Webhook secret is not configured." },
+        { status: 500 }
+      );
+    }
+
+    if (webhookSecret !== process.env.EVENT_WEBHOOK_SECRET) {
+      return NextResponse.json(
+        { error: "Unauthorized." },
+        { status: 401 }
+      );
+    }
+
     // ---------------------------------------------------------
     // Read Supabase webhook payload
     // ---------------------------------------------------------
@@ -90,7 +102,7 @@ export async function POST(request: Request) {
 
       console.log(
         `New event notification completed: ` +
-          `${result.sent} sent, ${result.failed} failed.`
+        `${result.sent} sent, ${result.failed} failed.`
       );
 
       return NextResponse.json({
@@ -113,19 +125,20 @@ export async function POST(request: Request) {
       );
     }
 
+    const changedFields = NOTIFICATION_FIELDS.filter(
+      (field) => oldRecord[field] !== event[field]
+    );
+
     // ---------------------------------------------------------
-    // Check whether a meaningful field changed
+    // Check meaningful changes
     // ---------------------------------------------------------
 
-    const meaningfulChange = hasMeaningfulChange(
-      oldRecord,
-      event
-    );
+    const meaningfulChange = changedFields.length > 0;
 
     if (!meaningfulChange) {
       console.log(
         `Event ${event.id} was updated, but no notification-relevant ` +
-          `fields changed. No email sent.`
+        `fields changed. No email sent.`
       );
 
       return NextResponse.json({
@@ -152,12 +165,13 @@ export async function POST(request: Request) {
         organizer: event.organizer,
         image_url: event.image_url ?? null,
       },
-      "UPDATE"
+      "UPDATE",
+      changedFields
     );
 
     console.log(
       `Event update notification completed: ` +
-        `${result.sent} sent, ${result.failed} failed.`
+      `${result.sent} sent, ${result.failed} failed.`
     );
 
     return NextResponse.json({
