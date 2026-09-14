@@ -74,7 +74,6 @@ export async function processNotificationQueue() {
     const { data: queuedItems, error: queueError } = await supabase
         .from("event_notification_queue")
         .select("id, event_id, created_at, queued_at")
-        .lte("created_at", threeHoursAgo)
         .order("queued_at", { ascending: false });
 
     if (queueError) {
