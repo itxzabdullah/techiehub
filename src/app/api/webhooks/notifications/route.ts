@@ -99,6 +99,12 @@ export async function POST(request: Request) {
     // ---------------------------------------------------------
 
     if (operation === "INSERT") {
+      console.log("WEBHOOK: INSERT received", {
+    eventId: event.id,
+  });
+
+  console.log("WEBHOOK: attempting queue upsert");
+
       const { error: queueError } = await supabase
         .from("event_notification_queue")
         .upsert(
@@ -110,6 +116,10 @@ export async function POST(request: Request) {
             ignoreDuplicates: true,
           }
         );
+
+         console.log("WEBHOOK: queue upsert completed", {
+    error: queueError,
+  });
 
       if (queueError) {
         console.error("Failed to queue event:", queueError);
