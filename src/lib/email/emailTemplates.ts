@@ -951,48 +951,192 @@ export function renderQueuedEventsHtml(events: EventData[]) {
 
       <!-- Footer -->
 
-      <div
-        style="
-          padding: 28px 32px;
-          background-color: #fafafa;
-          border-top: 1px solid #eeeeee;
-          text-align: center;
-        "
-      >
+<div
+  style="
+    padding: 28px 32px;
+    background-color: #fafafa;
+    border-top: 1px solid #eeeeee;
+    text-align: center;
+  "
+>
 
-        <div
+  <div
+    style="
+      margin-bottom: 16px;
+      font-size: 13px;
+      color: #6b7280;
+    "
+  >
+    Follow Techie Hub
+  </div>
+
+  <!-- Social Icons -->
+
+  <table
+    role="presentation"
+    cellspacing="0"
+    cellpadding="0"
+    border="0"
+    style="margin: 0 auto 20px auto;"
+  >
+    <tr>
+
+      <!-- Website -->
+
+      <td style="padding: 0 6px;">
+        <a
+          href="${escapeHtml(siteUrl)}"
+          target="_blank"
           style="
-            margin-bottom: 12px;
-            font-size: 13px;
-            color: #6b7280;
+            display: inline-block;
+            text-decoration: none;
           "
         >
-          Follow Techie Hub
-        </div>
+          <img
+            src="${escapeHtml(siteUrl)}/icons/website.png"
+            alt="Website"
+            width="24"
+            height="24"
+            style="
+              display: block;
+              width: 24px;
+              height: 24px;
+              border: 0;
+            "
+          />
+        </a>
+      </td>
 
-        <div
+      <!-- LinkedIn -->
+
+      <td style="padding: 0 6px;">
+        <a
+          href="${escapeHtml(SOCIAL_LINKS.linkedin)}"
+          target="_blank"
           style="
-            font-size: 12px;
-            line-height: 1.5;
-            color: #9ca3af;
+            display: inline-block;
+            text-decoration: none;
           "
         >
-          You are receiving this email because you subscribed
-          to Techie Hub event updates.
-        </div>
+          <img
+            src="${escapeHtml(siteUrl)}/icons/linkedin.png"
+            alt="LinkedIn"
+            width="24"
+            height="24"
+            style="
+              display: block;
+              width: 24px;
+              height: 24px;
+              border: 0;
+            "
+          />
+        </a>
+      </td>
 
-        <div
+      <!-- X -->
+
+      <td style="padding: 0 6px;">
+        <a
+          href="${escapeHtml(SOCIAL_LINKS.x)}"
+          target="_blank"
           style="
-            margin-top: 8px;
-            font-size: 12px;
-            color: #9ca3af;
+            display: inline-block;
+            text-decoration: none;
           "
         >
-          © ${new Date().getFullYear()}
-          Techie Hub. All rights reserved.
-        </div>
+          <img
+            src="${escapeHtml(siteUrl)}/icons/x.png"
+            alt="X"
+            width="24"
+            height="24"
+            style="
+              display: block;
+              width: 24px;
+              height: 24px;
+              border: 0;
+            "
+          />
+        </a>
+      </td>
 
-      </div>
+      <!-- Instagram -->
+
+      <td style="padding: 0 6px;">
+        <a
+          href="${escapeHtml(SOCIAL_LINKS.instagram)}"
+          target="_blank"
+          style="
+            display: inline-block;
+            text-decoration: none;
+          "
+        >
+          <img
+            src="${escapeHtml(siteUrl)}/icons/instagram.png"
+            alt="Instagram"
+            width="24"
+            height="24"
+            style="
+              display: block;
+              width: 24px;
+              height: 24px;
+              border: 0;
+            "
+          />
+        </a>
+      </td>
+
+      <!-- Discord -->
+
+      <td style="padding: 0 6px;">
+        <a
+          href="${escapeHtml(SOCIAL_LINKS.discord)}"
+          target="_blank"
+          style="
+            display: inline-block;
+            text-decoration: none;
+          "
+        >
+          <img
+            src="${escapeHtml(siteUrl)}/icons/discord.png"
+            alt="Discord"
+            width="24"
+            height="24"
+            style="
+              display: block;
+              width: 24px;
+              height: 24px;
+              border: 0;
+            "
+          />
+        </a>
+      </td>
+
+    </tr>
+  </table>
+
+  <div
+    style="
+      font-size: 12px;
+      line-height: 1.5;
+      color: #9ca3af;
+    "
+  >
+    You are receiving this email because you subscribed
+    to Techie Hub event updates.
+  </div>
+
+  <div
+    style="
+      margin-top: 8px;
+      font-size: 12px;
+      color: #9ca3af;
+    "
+  >
+    © ${new Date().getFullYear()}
+    Techie Hub. All rights reserved.
+  </div>
+
+</div>
 
     </div>
 
