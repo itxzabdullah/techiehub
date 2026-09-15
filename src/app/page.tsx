@@ -182,7 +182,7 @@ export default async function Home({
           )}
         </section>
                 {!isAdmin && (
-          <section id="subscribe" className="mt-12 scroll-mt-6">
+          <section id="subscribe" className="mt-12 scroll-mt-28">
             <div className="mx-auto max-w-6xl rounded-3xl border border-gray-200 bg-gradient-to-br from-white to-gray-50 px-6 py-10 text-center shadow-sm sm:px-10 md:px-16 md:py-12">
 
               <div className="mx-auto max-w-3xl">
